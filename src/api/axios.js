@@ -52,6 +52,7 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         // Если обновление токена не удалось, перенаправляем на страницу входа
+        console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.location.href = '/login';

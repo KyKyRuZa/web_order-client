@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext'; // Путь к контексту аутентификации
 import { useApplications } from '../context/ApplicationsContext'; // Путь к контексту заявок
-import { applicationsAPI } from '../api';
 import { extractPhoneForServer } from '../api/utils';
+import { FontAwesomeIcon } from './FontAwesomeIcon';
 import '../styles/OrderForm.css';
 
 export const OrderForm = () => {
@@ -21,15 +21,31 @@ export const OrderForm = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    // Если пользователь аутентифицирован, заполняем поля по умолчанию
     if (isAuthenticated && user) {
-      setFormData(prev => ({
-        ...prev,
-        contactFullName: user.full_name || '',
-        contactEmail: user.email || '',
-        contactPhone: user.phone || '',
-        companyName: user.company_name || ''
-      }));
+      const timer = setTimeout(() => {
+        setFormData(prev => {
+          const updatedData = {
+            ...prev,
+            contactFullName: user.full_name || prev.contactFullName,
+            contactEmail: user.email || prev.contactEmail,
+            contactPhone: user.phone || prev.contactPhone,
+            companyName: user.company_name || prev.companyName
+          };
+
+          // Проверяем, изменились ли данные
+          if (
+            prev.contactFullName !== updatedData.contactFullName ||
+            prev.contactEmail !== updatedData.contactEmail ||
+            prev.contactPhone !== updatedData.contactPhone ||
+            prev.companyName !== updatedData.companyName
+          ) {
+            return updatedData;
+          }
+
+          return prev;
+        });
+      });
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, user]);
 
@@ -108,6 +124,7 @@ export const OrderForm = () => {
         setErrors({ submit: result.message });
       }
     } catch (error) {
+      console.error('Ошибка отправки заявки:', error);
       setErrors({ submit: 'Ошибка отправки заявки' });
     }
   };
@@ -262,24 +279,7 @@ export const OrderForm = () => {
             </form>
           ) : (
             <div className="form-success">
-              <svg viewBox="0 0 80 80">
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="35"
-                  fill="none"
-                  stroke="#00d4aa"
-                  strokeWidth="3"
-                />
-                <path
-                  d="M25 40 L35 50 L55 30"
-                  fill="none"
-                  stroke="#00d4aa"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <FontAwesomeIcon icon={['fas', 'check-circle']} style={{ fontSize: '5rem', color: '#00d4aa' }} />
               <h3>Заявка отправлена!</h3>
               <p>Мы свяжемся с вами в ближайшее время</p>
               <button

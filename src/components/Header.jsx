@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { FontAwesomeIcon } from './FontAwesomeIcon';
 import '../styles/Header.css';
 import { Logo } from './Logo';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -45,11 +46,7 @@ export const Header = () => {
           </ul>
         </nav>
         <button className="mobile-menu" onClick={toggleMenu}>
-          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round">
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2="21" y2="12" />
-            <line x1="3" y1="18" x2="21" y2="18" />
-          </svg>
+          <FontAwesomeIcon icon="bars" />
         </button>
       </div>
     </header>

@@ -1,6 +1,6 @@
 .applications-page {
-  padding: 2rem;
-  min-height: 80vh;
+  padding: 80px 2rem 2rem; /* Увеличенный верхний отступ для учета фиксированного заголовка */
+  min-height: calc(100vh - 80px); /* Учитываем высоту заголовка */
 }
 
 .applications-container {

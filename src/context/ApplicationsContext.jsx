@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
 import { applicationsAPI } from '../api';
 
 const ApplicationsContext = createContext();
@@ -17,7 +16,6 @@ export const ApplicationsProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { user } = useAuth();
 
   const fetchApplications = useCallback(async (filters = {}) => {
     setLoading(true);

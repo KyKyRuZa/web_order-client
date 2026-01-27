@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { PasswordInput } from '../PasswordInput';
 import '../../styles/AuthForm.css';
 
 export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
@@ -9,7 +10,7 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { login } = useAuth();
 
   const handleChange = (e) => {
@@ -78,15 +79,14 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Пароль</label>
-            <input
-              type="password"
+            <PasswordInput
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={errors.password ? 'error' : ''}
               placeholder="••••••••"
+              required
+              label="Пароль"
             />
             {errors.password && <span className="error-text">{errors.password}</span>}
           </div>

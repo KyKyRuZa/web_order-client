@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [checkAuthStatus]);
 
   const checkAuthStatus = useCallback(async () => {
     const token = localStorage.getItem('accessToken');

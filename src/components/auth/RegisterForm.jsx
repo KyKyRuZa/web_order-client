@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { PasswordInput } from '../PasswordInput';
 import { extractPhoneForServer } from '../../api/utils';
 import '../../styles/AuthForm.css';
 
@@ -127,29 +128,27 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
           </div>
           
           <div className="form-group">
-            <label htmlFor="password">Пароль</label>
-            <input
-              type="password"
+            <PasswordInput
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={errors.password ? 'error' : ''}
               placeholder="••••••••"
+              required
+              label="Пароль"
             />
             {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
-          
+
           <div className="form-group">
-            <label htmlFor="confirmPassword">Подтвердите пароль</label>
-            <input
-              type="password"
+            <PasswordInput
               id="confirmPassword"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={errors.confirmPassword ? 'error' : ''}
               placeholder="••••••••"
+              required
+              label="Подтвердите пароль"
             />
             {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
           </div>

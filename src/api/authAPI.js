@@ -59,5 +59,11 @@ export const authAPI = {
   deactivateAccount: async () => {
     const response = await api.delete('/auth/deactivate');
     return response.data;
+  },
+
+  // Изменение пароля
+  changePassword: async (passwordData) => {
+    const response = await api.put('/auth/change-password', passwordData);
+    return response.data;
   }
 };

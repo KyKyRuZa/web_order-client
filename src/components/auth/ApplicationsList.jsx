@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
+import { Header } from '../Header';
 import '../../styles/ApplicationsList.css';
 
 export const ApplicationsList = () => {
@@ -15,43 +16,54 @@ export const ApplicationsList = () => {
 
   if (!user) {
     return (
-      <div className="applications-page">
-        <div className="applications-container">
-          <div className="auth-required">
-            <h2>Для просмотра заявок необходимо войти в аккаунт</h2>
+      <>
+        <Header />
+        <div className="applications-page">
+          <div className="applications-container">
+            <div className="auth-required">
+              <h2>Для просмотра заявок необходимо войти в аккаунт</h2>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (loading) {
     return (
-      <div className="applications-page">
-        <div className="applications-container">
-          <div className="loading">Загрузка заявок...</div>
+      <>
+        <Header />
+        <div className="applications-page">
+          <div className="applications-container">
+            <div className="loading">Загрузка заявок...</div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="applications-page">
-        <div className="applications-container">
-          <div className="error-message">{error}</div>
+      <>
+        <Header />
+        <div className="applications-page">
+          <div className="applications-container">
+            <div className="error-message">{error}</div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="applications-page">
-      <div className="applications-container">
-        <div className="applications-header">
-          <h1>Мои заявки</h1>
-          <p>Управление вашими проектными заявками</p>
-        </div>
+    <>
+      <Header />
+      <div className="applications-page">
+        <div className="applications-container">
+          <div className="applications-header">
+            <h1>Мои заявки</h1>
+            <p>Управление вашими проектными заявками</p>
+          </div>
 
         {applications.length === 0 ? (
           <div className="no-applications">
@@ -113,5 +125,6 @@ export const ApplicationsList = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
