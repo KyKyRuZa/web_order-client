@@ -55,3 +55,139 @@
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
+
+/* Адаптация для планшетов */
+@media (max-width: 1023px) {
+  .contact {
+    padding: 3rem 1.5rem;
+  }
+
+  .contact-grid {
+    gap: 1.25rem;
+  }
+
+  .contact-card {
+    padding: 1.25rem;
+    gap: 0.8rem;
+  }
+
+  .contact-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .contact-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .contact-info h4 {
+    font-size: 0.95rem;
+  }
+
+  .contact-info p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+  .contact {
+    padding: 2.5rem 1rem;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .contact-card {
+    padding: 1.2rem;
+    gap: 0.7rem;
+    flex-direction: row;
+  }
+
+  .contact-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .contact-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .contact-info h4 {
+    font-size: 0.9rem;
+  }
+
+  .contact-info p {
+    font-size: 0.8rem;
+  }
+}
+
+/* Адаптация для очень маленьких экранов */
+@media (max-width: 480px) {
+  .contact {
+    padding: 2rem 0.75rem;
+  }
+
+  .contact-card {
+    padding: 1rem;
+    gap: 0.6rem;
+    flex-direction: row;
+  }
+
+  .contact-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .contact-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .contact-info h4 {
+    font-size: 0.85rem;
+  }
+
+  .contact-info p {
+    font-size: 0.75rem;
+  }
+}
+
+/* Адаптация для очень широких экранов */
+@media (min-width: 1400px) {
+  .contact {
+    padding: 5rem 3rem;
+  }
+
+  .contact-grid {
+    max-width: 1400px;
+    gap: 2rem;
+  }
+
+  .contact-card {
+    padding: 2rem;
+    gap: 1.2rem;
+  }
+
+  .contact-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .contact-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .contact-info h4 {
+    font-size: 1.1rem;
+  }
+
+  .contact-info p {
+    font-size: 1rem;
+  }
+}

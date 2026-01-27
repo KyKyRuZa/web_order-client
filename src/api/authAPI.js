@@ -57,7 +57,7 @@ export const authAPI = {
 
   // Деактивация аккаунта
   deactivateAccount: async () => {
-    const response = await api.delete('/auth/deactivate');
+    const response = await api.post('/auth/deactivate');
     return response.data;
   },
 

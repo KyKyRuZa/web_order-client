@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from './FontAwesomeIcon';
 import '../styles/Services.css';
 
-export const Services = () => {
+export const Services = ({ id }) => {
   const services = [
     {
       icon: 'laptop-code',
@@ -24,7 +24,7 @@ export const Services = () => {
   ];
 
   return (
-    <section className="services" id="services">
+    <section className="services" id={id || "services"}>
       <div className="section-header">
         <span className="section-label">Услуги</span>
         <h2 className="section-title">Что мы создаём</h2>

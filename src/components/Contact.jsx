@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from './FontAwesomeIcon';
 import '../styles/Contact.css';
 
-export const Contact = () => {
+export const Contact = ({ id }) => {
   const contacts = [
     {
       icon: 'phone',
@@ -26,7 +26,7 @@ export const Contact = () => {
   ];
 
   return (
-    <section className="contact" id="contact">
+    <section className="contact" id={id || "contact"}>
       <div className="contact-grid">
         {contacts.map((contact, index) => (
           <div className="contact-card" key={index}>

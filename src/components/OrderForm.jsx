@@ -5,7 +5,7 @@ import { extractPhoneForServer } from '../api/utils';
 import { FontAwesomeIcon } from './FontAwesomeIcon';
 import '../styles/OrderForm.css';
 
-export const OrderForm = () => {
+export const OrderForm = ({ id }) => {
   const { user, isAuthenticated } = useAuth();
   const { createApplication } = useApplications();
   const [formData, setFormData] = useState({
@@ -129,30 +129,18 @@ export const OrderForm = () => {
     }
   };
 
-  // Преобразование типов услуг для соответствия серверу
-  const getServiceTypeValue = (service) => {
-    switch(service) {
-      case 'web':
-        return 'web_application';
-      case 'messenger':
-        return 'corporate_site';
-      case 'crm':
-        return 'web_application';
-      case 'complex':
-        return 'other';
-      default:
-        return '';
+  const handleServiceChange = (e) => {
+    const { value } = e.target;
+    setFormData(prev => ({ ...prev, serviceType: value }));
+
+    // Очистка ошибки при изменении поля
+    if (errors.serviceType) {
+      setErrors(prev => ({ ...prev, serviceType: '' }));
     }
   };
 
-  const handleServiceChange = (e) => {
-    const { value } = e.target;
-    const serviceTypeValue = getServiceTypeValue(value);
-    setFormData(prev => ({ ...prev, serviceType: serviceTypeValue }));
-  };
-
   return (
-    <section className="order" id="order">
+    <section className="order" id={id || "order"}>
       <div className="order-container">
         <div className="section-header">
           <span className="section-label">Заказать</span>
@@ -196,16 +184,18 @@ export const OrderForm = () => {
                   <label htmlFor="service">Тип услуги</label>
                   <select
                     id="service"
-                    name="service"
-                    value=""
+                    name="serviceType"
+                    value={formData.serviceType}
                     onChange={handleServiceChange}
                     required
                   >
                     <option value="">Выберите услугу</option>
-                    <option value="web">Веб-разработка</option>
-                    <option value="messenger">Корпоративный мессенджер</option>
-                    <option value="crm">CRM система</option>
-                    <option value="complex">Комплексное решение</option>
+                    <option value="web_application">Веб-приложение</option>
+                    <option value="landing_page">Лендинг</option>
+                    <option value="corporate_site">Корпоративный сайт</option>
+                    <option value="ecommerce">Интернет-магазин</option>
+                    <option value="redesign">Редизайн</option>
+                    <option value="other">Другое</option>
                   </select>
                   {errors.serviceType && <span className="error-text">{errors.serviceType}</span>}
                 </div>

@@ -16,17 +16,6 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Загрузка токена из localStorage при запуске
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      // Проверяем валидность токена через API
-      checkAuthStatus();
-    } else {
-      setLoading(false);
-    }
-  }, [checkAuthStatus]);
-
   const checkAuthStatus = useCallback(async () => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -53,6 +42,17 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  // Загрузка токена из localStorage при запуске
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      // Проверяем валидность токена через API
+      checkAuthStatus();
+    } else {
+      setLoading(false);
+    }
+  }, [checkAuthStatus]);
 
   const login = useCallback(async (email, password) => {
     try {
@@ -111,6 +111,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem('refreshToken');
       setUser(null);
       setIsAuthenticated(false);
+
+      // Перенаправляем на главную страницу
+      window.location.href = '/';
     }
   }, []);
 

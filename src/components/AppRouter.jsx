@@ -4,6 +4,7 @@ import { LoginForm } from './auth/LoginForm';
 import { RegisterForm } from './auth/RegisterForm';
 import { ProfilePage } from './auth/ProfilePage';
 import { ApplicationsList } from './auth/ApplicationsList';
+import { AdminPanel } from './admin/AdminPanel';
 import App from './App';
 import '../styles/AppRouter.css';
 
@@ -60,6 +61,10 @@ export const AppRouter = () => {
 
   if (currentPath === '/my-applications') {
     return <ApplicationsList />;
+  }
+
+  if (currentPath === '/admin' || currentPath === '/admin-panel') {
+    return <AdminPanel />;
   }
 
   // Для всех остальных маршрутов показываем основное приложение

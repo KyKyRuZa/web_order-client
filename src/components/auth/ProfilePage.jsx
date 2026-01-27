@@ -4,11 +4,12 @@ import { Header } from '../Header';
 import { PasswordInput } from '../PasswordInput';
 import { authAPI } from '../../api';
 import { extractPhoneForServer } from '../../api/utils';
+import { ApplicationsList } from './ApplicationsList';
 import '../../styles/ProfilePage.css';
 
 export const ProfilePage = () => {
   const { user, updateProfile, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'password', 'account'
+  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'security', 'notifications', 'applications'
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -30,13 +31,14 @@ export const ProfilePage = () => {
       return () => clearTimeout(timer);
     }
   }, [user, isEditing]);
+  
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [profileSuccessMessage, setProfileSuccessMessage] = useState('');
+  const [profileErrorMessage, setProfileErrorMessage] = useState('');
   const [passwordSuccessMessage, setPasswordSuccessMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
 
@@ -76,16 +78,16 @@ export const ProfilePage = () => {
       const result = await updateProfile(profileData);
 
       if (result.success) {
-        setSuccessMessage('Профиль успешно обновлен!');
-        setErrorMessage('');
+        setProfileSuccessMessage('Профиль успешно обновлен!');
+        setProfileErrorMessage('');
         setIsEditing(false);
-        setTimeout(() => setSuccessMessage(''), 3000);
+        setTimeout(() => setProfileSuccessMessage(''), 3000);
       } else {
-        setErrorMessage(result.message);
+        setProfileErrorMessage(result.message);
       }
     } catch (error) {
       console.error('Profile update error:', error);
-      setErrorMessage('Ошибка обновления профиля');
+      setProfileErrorMessage('Ошибка обновления профиля');
     }
   };
 
@@ -156,282 +158,295 @@ export const ProfilePage = () => {
         <div className="profile-container">
           <div className="profile-header">
             <h1>Профиль пользователя</h1>
-            <button className="btn btn-secondary" onClick={handleLogout}>
-              Выйти
-            </button>
+            {(user?.role === 'admin' || user?.role === 'manager') && (
+              <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>
+                Админ-панель
+              </button>
+            )}
+            
           </div>
 
-          {/* Вкладки */}
-          <div className="tabs">
-            <button
-              className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              Профиль
-            </button>
-            <button
-              className={`tab-button ${activeTab === 'password' ? 'active' : ''}`}
-              onClick={() => setActiveTab('password')}
-            >
-              Безопасность
-            </button>
-            <button
-              className={`tab-button ${activeTab === 'account' ? 'active' : ''}`}
-              onClick={() => setActiveTab('account')}
-            >
-              Управление аккаунтом
-            </button>
-          </div>
-
-          {successMessage && (
-            <div className="success-message">{successMessage}</div>
-          )}
-
-          {errorMessage && (
-            <div className="error-message">{errorMessage}</div>
-          )}
-
-          {/* Содержимое вкладок */}
-          <div className="tab-content">
-            {activeTab === 'profile' && (
-              <div className="tab-pane">
-                <div className="profile-info">
-                  <div className="profile-card">
-                    <div className="profile-avatar">
-                      <svg viewBox="0 0 100 100">
-                        <circle cx="50" cy="40" r="20" fill="var(--accent)" />
-                        <path d="M30,80 Q50,65 70,80 T90,80" fill="var(--accent)" />
-                      </svg>
-                    </div>
-
-                    <div className="profile-details">
-                      <div className="detail-item">
-                        <span className="label">ФИО:</span>
-                        <span className="value">{user.full_name}</span>
-                      </div>
-
-                      <div className="detail-item">
-                        <span className="label">Email:</span>
-                        <span className="value">{user.email}</span>
-                      </div>
-
-                      <div className="detail-item">
-                        <span className="label">Телефон:</span>
-                        <span className="value">{user.phone || 'Не указан'}</span>
-                      </div>
-
-                      <div className="detail-item">
-                        <span className="label">Компания:</span>
-                        <span className="value">{user.company_name || 'Не указана'}</span>
-                      </div>
-
-                      <div className="detail-item">
-                        <span className="label">Роль:</span>
-                        <span className="value">
-                          {user.role === 'admin' ? 'Администратор' :
-                           user.role === 'manager' ? 'Менеджер' : 'Клиент'}
-                        </span>
-                      </div>
-
-                      <div className="detail-item">
-                        <span className="label">Дата регистрации:</span>
-                        <span className="value">{new Date(user.created_at).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="profile-actions">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => setIsEditing(!isEditing)}
-                    >
-                      {isEditing ? 'Отменить' : 'Редактировать профиль'}
-                    </button>
-                  </div>
+          {/* Основной контейнер с двумя колонками */}
+          <div className="profile-layout">
+            {/* Левая колонка - аватар и информация о пользователе */}
+            <div className="profile-info-column">
+              <div className="profile-card">
+                <div className="profile-avatar">
+                  <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="40" r="20" fill="var(--accent)" />
+                    <path d="M30,80 Q50,65 70,80 T90,80" fill="var(--accent)" />
+                  </svg>
                 </div>
 
-                {isEditing && (
-                  <div className="profile-edit">
-                    <h3>Редактировать профиль</h3>
-                    <form onSubmit={handleSubmit}>
-                      <div className="form-group">
-                        <label htmlFor="fullName">ФИО</label>
-                        <input
-                          type="text"
-                          id="fullName"
-                          name="fullName"
-                          value={formData.fullName}
-                          onChange={handleChange}
-                          required
-                        />
-                      </div>
+                <div className="profile-details">
+                  <div className="detail-item">
+                    <span className="label">ФИО:</span>
+                    <span className="value">{user.full_name}</span>
+                  </div>
 
-                      <div className="form-group">
-                        <label htmlFor="email">Email</label>
-                        <input
-                          type="email"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                          disabled
-                        />
-                        <small className="field-note">Email нельзя изменить</small>
-                      </div>
+                  <div className="detail-item">
+                    <span className="label">Email:</span>
+                    <span className="value">{user.email}</span>
+                  </div>
 
-                      <div className="form-group">
-                        <label htmlFor="phone">Телефон</label>
-                        <input
-                          type="tel"
-                          id="phone"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handlePhoneChange}
-                        />
-                      </div>
+                  <div className="detail-item">
+                    <span className="label">Телефон:</span>
+                    <span className="value">{user.phone || 'Не указан'}</span>
+                  </div>
 
-                      <div className="form-group">
-                        <label htmlFor="companyName">Название компании</label>
-                        <input
-                          type="text"
-                          id="companyName"
-                          name="companyName"
-                          value={formData.companyName}
-                          onChange={handleChange}
-                        />
-                      </div>
+                  <div className="detail-item">
+                    <span className="label">Компания:</span>
+                    <span className="value">{user.company_name || 'Не указана'}</span>
+                  </div>
 
-                      <div className="form-actions">
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          onClick={() => setIsEditing(false)}
-                        >
-                          Отменить
-                        </button>
-                        <button
-                          type="submit"
-                          className="btn btn-primary"
-                        >
-                          Сохранить изменения
-                        </button>
-                      </div>
-                    </form>
+                  <div className="detail-item">
+                    <span className="label">Роль:</span>
+                    <span className="value">
+                      {user.role === 'admin' ? 'Администратор' :
+                       user.role === 'manager' ? 'Менеджер' : 'Клиент'}
+                    </span>
+                  </div>
+
+                  <div className="detail-item">
+                    <span className="label">Дата регистрации:</span>
+                    <span className="value">{new Date(user.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="account-actions">
+                <button
+                  className="btn-logout"
+                  onClick={handleLogout}
+                >
+                  Выйти
+                </button>
+
+                <button
+                  className="btn btn-danger"
+                  onClick={async () => {
+                    if (window.confirm('Внимание! При деактивации аккаунта все ваши данные будут удалены и доступ к аккаунту будет потерян. Вы уверены, что хотите деактивировать свой аккаунт?')) {
+                      try {
+                        const result = await authAPI.deactivateAccount();
+
+                        if (result.success) {
+                          alert('Ваш аккаунт успешно деактивирован. Вы будете перенаправлены на главную страницу.');
+                          logout(); // Выход из системы
+                        } else {
+                          alert(result.message || 'Ошибка деактивации аккаунта');
+                        }
+                      } catch (error) {
+                        console.error('Deactivate account error:', error);
+                        alert(error.response?.data?.message || 'Ошибка деактивации аккаунта');
+                      }
+                    }
+                  }}
+                >
+                  Деактивировать аккаунт
+                </button>
+              </div>
+            </div>
+
+            {/* Правая колонка - вкладки */}
+            <div className="profile-tabs-column">
+              {/* Вкладки */}
+              <div className="tabs">
+                <button 
+                  className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('profile')}
+                >
+                  Профиль
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'security' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('security')}
+                >
+                  Безопасность
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('applications')}
+                >
+                  Мои заявки
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('notifications')}
+                >
+                  Уведомления
+                </button>
+              </div>
+
+              {/* Содержимое вкладок */}
+              <div className="tab-content">
+                {activeTab === 'profile' && (
+                  <div className="tab-pane">
+                    <div className="profile-edit-section">
+                      <h3>Редактировать профиль</h3>
+
+                      {profileSuccessMessage && (
+                        <div className="success-message">{profileSuccessMessage}</div>
+                      )}
+
+                      {profileErrorMessage && (
+                        <div className="error-message">{profileErrorMessage}</div>
+                      )}
+
+                      <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                          <label htmlFor="fullName">ФИО</label>
+                          <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="email">Email</label>
+                          <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            disabled
+                          />
+                          <small className="field-note">Email нельзя изменить</small>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="phone">Телефон</label>
+                          <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handlePhoneChange}
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="companyName">Название компании</label>
+                          <input
+                            type="text"
+                            id="companyName"
+                            name="companyName"
+                            value={formData.companyName}
+                            onChange={handleChange}
+                          />
+                        </div>
+
+                        <div className="form-actions">
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                          >
+                            Сохранить изменения
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'security' && (
+                  <div className="tab-pane">
+                    <div className="password-change-form">
+                      <h3>Изменить пароль</h3>
+
+                      {passwordSuccessMessage && (
+                        <div className="success-message">{passwordSuccessMessage}</div>
+                      )}
+
+                      {passwordErrorMessage && (
+                        <div className="error-message">{passwordErrorMessage}</div>
+                      )}
+
+                      <form onSubmit={handlePasswordSubmit}>
+                        <div className="form-group">
+                          <label htmlFor="currentPassword">Текущий пароль</label>
+                          <PasswordInput
+                            id="currentPassword"
+                            name="currentPassword"
+                            value={passwordData.currentPassword}
+                            onChange={handlePasswordChange}
+                            required
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="newPassword">Новый пароль</label>
+                          <PasswordInput
+                            id="newPassword"
+                            name="newPassword"
+                            value={passwordData.newPassword}
+                            onChange={handlePasswordChange}
+                            required
+                            minLength="6"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="confirmPassword">Подтвердите новый пароль</label>
+                          <PasswordInput
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={passwordData.confirmPassword}
+                            onChange={handlePasswordChange}
+                            required
+                            minLength="6"
+                          />
+                        </div>
+
+                        <div className="form-actions">
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => {
+                              setPasswordData({
+                                currentPassword: '',
+                                newPassword: '',
+                                confirmPassword: ''
+                              });
+                              setPasswordErrorMessage('');
+                              setPasswordSuccessMessage('');
+                            }}
+                          >
+                            Отменить
+                          </button>
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                          >
+                            Изменить пароль
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'notifications' && (
+                  <div className="tab-pane">
+                    <div className="notifications-settings">
+                      <h3>Настройки уведомлений</h3>
+                      <p>Функционал настройки уведомлений в разработке</p>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'applications' && (
+                  <div className="tab-pane">
+                    <ApplicationsList />
                   </div>
                 )}
               </div>
-            )}
-
-            {activeTab === 'password' && (
-              <div className="tab-pane">
-                <div className="password-change-form">
-                  <h3>Изменить пароль</h3>
-
-                  {passwordSuccessMessage && (
-                    <div className="success-message">{passwordSuccessMessage}</div>
-                  )}
-
-                  {passwordErrorMessage && (
-                    <div className="error-message">{passwordErrorMessage}</div>
-                  )}
-
-                  <form onSubmit={handlePasswordSubmit}>
-                    <div className="form-group">
-                      <PasswordInput
-                        id="currentPassword"
-                        name="currentPassword"
-                        value={passwordData.currentPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        label="Текущий пароль"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <PasswordInput
-                        id="newPassword"
-                        name="newPassword"
-                        value={passwordData.newPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        minLength="6"
-                        label="Новый пароль"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <PasswordInput
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        value={passwordData.confirmPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        minLength="6"
-                        label="Подтвердите новый пароль"
-                      />
-                    </div>
-
-                    <div className="form-actions">
-                      <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => {
-                          setPasswordData({
-                            currentPassword: '',
-                            newPassword: '',
-                            confirmPassword: ''
-                          });
-                          setPasswordErrorMessage('');
-                          setPasswordSuccessMessage('');
-                        }}
-                      >
-                        Отменить
-                      </button>
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
-                      >
-                        Изменить пароль
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'account' && (
-              <div className="tab-pane">
-                <div className="account-management-section">
-                  <div className="danger-zone">
-                    <p>Внимание! При деактивации аккаунта все ваши данные будут удалены и доступ к аккаунту будет потерян.</p>
-
-                    <button
-                      className="btn btn-danger"
-                      onClick={async () => {
-                        if (window.confirm('Вы уверены, что хотите деактивировать свой аккаунт? Это действие необратимо.')) {
-                          try {
-                            const result = await authAPI.deactivateAccount();
-
-                            if (result.success) {
-                              alert('Ваш аккаунт успешно деактивирован. Вы будете перенаправлены на главную страницу.');
-                              logout(); // Выход из системы
-                            } else {
-                              alert(result.message || 'Ошибка деактивации аккаунта');
-                            }
-                          } catch (error) {
-                            console.error('Deactivate account error:', error);
-                            alert(error.response?.data?.message || 'Ошибка деактивации аккаунта');
-                          }
-                        }
-                      }}
-                    >
-                      Деактивировать аккаунт
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>

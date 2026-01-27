@@ -59,12 +59,7 @@ export const ApplicationsList = () => {
     <>
       <Header />
       <div className="applications-page">
-        <div className="applications-container">
-          <div className="applications-header">
-            <h1>Мои заявки</h1>
-            <p>Управление вашими проектными заявками</p>
-          </div>
-
+        <div className="applications-container">  
         {applications.length === 0 ? (
           <div className="no-applications">
             <p>У вас пока нет заявок</p>

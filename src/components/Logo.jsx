@@ -1,7 +1,6 @@
-// Logo.jsx
 export const Logo = () => {
   return (
-    <div className="logo">
+    <div className="logo" >
       <svg viewBox="0 0 40 40">
         <defs>
           <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">

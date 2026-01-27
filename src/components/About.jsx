@@ -1,8 +1,8 @@
 import '../styles/About.css';
 
-export const About = () => {
+export const About = ({ id }) => {
   return (
-    <section className="about" id="about">
+    <section className="about" id={id || "about"}>
       <div className="about-container">
         <div className="about-visual">
           <svg viewBox="0 0 200 200">

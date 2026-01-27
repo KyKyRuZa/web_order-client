@@ -6,7 +6,7 @@ import { Logo } from './Logo';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -21,23 +21,42 @@ export const Header = () => {
     closeMenu();
   };
 
+  
+  const handleAnchorClick = (e, anchor) => {
+    e.preventDefault();
+    closeMenu();
+
+    // Если мы на главной странице, просто скроллим
+    if (window.location.pathname === '/' || window.location.pathname === '') {
+      const element = document.querySelector(anchor);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Если мы на другой странице, переходим на главную и скроллим
+      window.location.href = `/${anchor}`;
+    }
+  };
+
   return (
     <header>
       <div className="header-container">
         <Logo />
         <nav>
           <ul className={isMenuOpen ? 'active' : ''} id="nav-menu">
-            <li><a href="#home" onClick={closeMenu}>Главная</a></li>
-            <li><a href="#services" onClick={closeMenu}>Услуги</a></li>
-            <li><a href="#about" onClick={closeMenu}>О нас</a></li>
-            <li><a href="#order" onClick={closeMenu}>Заказать</a></li>
-            <li><a href="#contact" onClick={closeMenu}>Контакты</a></li>
+            <li><a href="#home" onClick={(e) => handleAnchorClick(e, '#home')}>Главная</a></li>
+            <li><a href="#services" onClick={(e) => handleAnchorClick(e, '#services')}>Услуги</a></li>
+            <li><a href="#about" onClick={(e) => handleAnchorClick(e, '#about')}>О нас</a></li>
+            <li><a href="#order" onClick={(e) => handleAnchorClick(e, '#order')}>Заказать</a></li>
+            <li><a href="#contact" onClick={(e) => handleAnchorClick(e, '#contact')}>Контакты</a></li>
 
             {/* Дополнительные ссылки для аутентифицированных пользователей */}
             {isAuthenticated ? (
               <>
                 <li><a href="/profile" onClick={closeMenu}>Профиль</a></li>
-                <li><a href="/my-applications" onClick={closeMenu}>Мои заявки</a></li>
+                {(user?.role === 'admin' || user?.role === 'manager') && (
+                  <li><a href="/admin" onClick={closeMenu}>Админ-панель</a></li>
+                )}
                 <li><button onClick={handleLogout} className="logout-btn">Выйти</button></li>
               </>
             ) : (

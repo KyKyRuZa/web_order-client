@@ -1,8 +1,8 @@
 import '../styles/Hero.css';
 
-export const Hero = () => {
+export const Hero = ({ id }) => {
   return (
-    <section className="hero" id="home">
+    <section className="hero" id={id || "home"}>
       <div className="hero-content">
         <div className="hero-badge">Инновационные IT-решения</div>
         <h1>Создаём <span>цифровые связи</span> для вашего бизнеса</h1>

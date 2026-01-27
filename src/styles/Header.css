@@ -87,6 +87,7 @@ nav a:hover::after {
   transition: all 0.3s;
   position: relative;
   text-decoration: none;
+  text-align: center;
 }
 
 .logout-btn::after {
@@ -115,14 +116,49 @@ nav a:hover::after {
   border: none;
   cursor: pointer;
   padding: 8px;
+  color: white;
 }
 
 .mobile-menu svg {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   stroke: var(--text-primary);
 }
 
+/* Адаптация для планшетов */
+@media (max-width: 1023px) {
+  header {
+    padding: 0.8rem 1.5rem;
+  }
+
+  .logo svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-text {
+    font-size: 1.3rem;
+  }
+
+  nav ul {
+    gap: 1.5rem;
+  }
+
+  nav a {
+    font-size: 0.9rem;
+  }
+
+  .logout-btn {
+    font-size: 0.9rem;
+  }
+
+  .mobile-menu svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Адаптация для мобильных устройств */
 @media (max-width: 768px) {
   .mobile-menu {
     display: block;
@@ -153,5 +189,102 @@ nav a:hover::after {
 
   nav li:last-child {
     border-bottom: none;
+  }
+
+  header {
+    padding: 0.7rem 1rem;
+  }
+
+  .logo {
+    gap: 8px;
+  }
+
+  .logo svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
+  nav a {
+    font-size: 1rem;
+    padding: 0.8rem 0;
+  }
+
+  .logout-btn {
+    font-size: 1rem;
+    padding: 0.8rem 0;
+  }
+}
+
+/* Адаптация для очень маленьких экранов */
+@media (max-width: 480px) {
+  header {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .logo svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .mobile-menu svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  nav li {
+    padding: 0.8rem;
+  }
+
+  nav a {
+    font-size: 0.95rem;
+  }
+
+  .logout-btn {
+    font-size: 0.95rem;
+  }
+}
+
+/* Адаптация для очень широких экранов */
+@media (min-width: 1400px) {
+  header {
+    padding: 1.2rem 3rem;
+  }
+
+  .header-container {
+    max-width: 1600px;
+  }
+
+  .logo svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .logo-text {
+    font-size: 1.7rem;
+  }
+
+  nav ul {
+    gap: 2.5rem;
+  }
+
+  nav a {
+    font-size: 1.05rem;
+  }
+
+  .logout-btn {
+    font-size: 1.05rem;
+  }
+
+  .mobile-menu svg {
+    width: 32px;
+    height: 32px;
   }
 }
