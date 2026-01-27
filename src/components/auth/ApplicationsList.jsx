@@ -12,7 +12,7 @@ export const ApplicationsList = () => {
     if (user) {
       fetchApplications();
     }
-  }, [user]); // Убрали fetchApplications из зависимостей, так как она может быть новой функцией при каждом рендере
+  }, [user]);
 
   if (!user) {
     return (

@@ -8,7 +8,7 @@ import { OrderForm } from './OrderForm';
 import { Contact } from './Contact';
 import { Footer } from './Footer';
 
-function App() {
+const App = () => {
   useEffect(() => {
     // Обработка якорной навигации при загрузке страницы
     const hash = window.location.hash;
@@ -36,6 +36,6 @@ function App() {
       <Footer />
     </>
   );
-}
+};
 
 export default App;

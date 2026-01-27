@@ -1,0 +1,9 @@
+# Security Policy for Relate Lab
+# Our security policy: https://relatelab.ru/security-policy
+
+Contact: mailto:security@relatelab.ru
+Encryption: https://relatelab.ru/pgp-key.txt
+Acknowledgments: https://relatelab.ru/hall-of-fame
+Preferred-Languages: ru, en
+Canonical: https://relatelab.ru/.well-known/security.txt
+Policy: https://relatelab.ru/security-policy

@@ -1,0 +1,11 @@
+/* TEAM */
+Developer: Relate Lab Team
+Site: https://relatelab.ru
+Twitter: @relatelab
+Location: Russia
+
+/* SITE */
+Last update: 2026/01/27
+Standards: HTML5, CSS3, ES2022
+Components: React, Vite, PostgreSQL, Node.js
+Software: VSCode, Git

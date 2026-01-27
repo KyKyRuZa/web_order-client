@@ -6,6 +6,7 @@ import { ProfilePage } from './auth/ProfilePage';
 import { ApplicationsList } from './auth/ApplicationsList';
 import { AdminPanel } from './admin/AdminPanel';
 import App from './App';
+
 import '../styles/AppRouter.css';
 
 export const AppRouter = () => {

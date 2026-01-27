@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import '../styles/PasswordInput.css';
+import { memo } from 'react';
 
-export const PasswordInput = ({ 
-  id, 
-  name, 
-  value, 
-  onChange, 
-  placeholder, 
+export const PasswordInput = memo(({
+  id,
+  name,
+  value,
+  onChange,
+  placeholder,
   required = false,
-  label 
+  label
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,7 +43,7 @@ export const PasswordInput = ({
       </div>
     </div>
   );
-};
+});
 
 PasswordInput.propTypes = {
   id: PropTypes.string.isRequired,

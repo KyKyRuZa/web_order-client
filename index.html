@@ -1,10 +1,91 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
+
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' 'unsafe-inline' 'unsafe-eval';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data: https:;
+                   font-src 'self' data:;
+                   connect-src 'self' http://localhost:5000 https://localhost:5000;
+                   frame-src 'none';
+                   object-src 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+
+    <!-- SEO Meta Tags -->
+    <title>Relate Lab - Разработка веб-приложений, CRM-систем и корпоративных мессенджеров</title>
+    <meta name="description" content="Relate Lab - студия разработки веб-приложений, CRM-систем и корпоративных мессенджеров. Создаем цифровые решения для вашего бизнеса." />
+    <meta name="keywords" content="веб-разработка, CRM-системы, корпоративные мессенджеры, разработка программного обеспечения, веб-приложения, бизнес-автоматизация" />
+    <meta name="author" content="Relate Lab" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#00d4aa" />
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="language" content="Russian">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    <meta name="coverage" content="Worldwide">
+    <meta name="target" content="all">
+    <meta name="HandheldFriendly" content="true">
+    <meta name="MobileOptimized" content="320">
+
+    <!-- SEO Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Relate Lab",
+      "description": "Студия разработки веб-приложений, CRM-систем и корпоративных мессенджеров",
+      "url": "https://relatelab.ru",
+      "logo": "https://relatelab.ru/logo.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+7 (495) 123-45-67",
+        "contactType": "customer service",
+        "areaServed": "RU",
+        "availableLanguage": "ru"
+      },
+      "sameAs": [
+        "https://vk.com/relatelab",
+        "https://t.me/relatelab"
+      ]
+    }
+    </script>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://relatelab.ru/" />
+    <meta property="og:title" content="Relate Lab - Разработка веб-приложений, CRM-систем и корпоративных мессенджеров" />
+    <meta property="og:description" content="Relate Lab - студия разработки веб-приложений, CRM-систем и корпоративных мессенджеров. Создаем цифровые решения для вашего бизнеса." />
+    <meta property="og:image" content="/images/og-image.jpg" />
+    <meta property="og:site_name" content="Relate Lab" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Relate Lab - Разработка веб-приложений, CRM-систем и корпоративных мессенджеров" />
+    <meta name="twitter:description" content="Relate Lab - студия разработки веб-приложений, CRM-систем и корпоративных мессенджеров. Создаем цифровые решения для вашего бизнеса." />
+    <meta name="twitter:image" content="/images/twitter-image.jpg" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://relatelab.ru/" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+
+    <!-- Preload critical resources -->
+    <link rel="stylesheet" href="/src/styles/index.css">
+    <link rel="preload" href="/src/styles/index.css" as="style" />
   </head>
   <body>
     <div id="root"></div>

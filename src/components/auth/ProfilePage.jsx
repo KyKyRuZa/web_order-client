@@ -9,7 +9,7 @@ import '../../styles/ProfilePage.css';
 
 export const ProfilePage = () => {
   const { user, updateProfile, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'security', 'notifications', 'applications'
+  const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',

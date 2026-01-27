@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext'; // Путь к контексту аутентификации
 import { useApplications } from '../context/ApplicationsContext'; // Путь к контексту заявок
 import { extractPhoneForServer } from '../api/utils';
@@ -19,6 +19,18 @@ export const OrderForm = ({ id }) => {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
+  const customSelectRef = useRef(null);
+
+  const serviceOptions = [
+    { value: '', label: 'Выберите услугу' },
+    { value: 'web_application', label: 'Веб-приложение' },
+    { value: 'landing_page', label: 'Лендинг' },
+    { value: 'corporate_site', label: 'Корпоративный сайт' },
+    { value: 'ecommerce', label: 'Интернет-магазин' },
+    { value: 'redesign', label: 'Редизайн' },
+    { value: 'other', label: 'Другое' }
+  ];
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -48,6 +60,20 @@ export const OrderForm = ({ id }) => {
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, user]);
+
+  // Закрытие выпадающего списка при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (customSelectRef.current && !customSelectRef.current.contains(event.target)) {
+        setIsServiceDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -129,15 +155,6 @@ export const OrderForm = ({ id }) => {
     }
   };
 
-  const handleServiceChange = (e) => {
-    const { value } = e.target;
-    setFormData(prev => ({ ...prev, serviceType: value }));
-
-    // Очистка ошибки при изменении поля
-    if (errors.serviceType) {
-      setErrors(prev => ({ ...prev, serviceType: '' }));
-    }
-  };
 
   return (
     <section className="order" id={id || "order"}>
@@ -182,21 +199,40 @@ export const OrderForm = ({ id }) => {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="service">Тип услуги</label>
-                  <select
-                    id="service"
-                    name="serviceType"
-                    value={formData.serviceType}
-                    onChange={handleServiceChange}
-                    required
-                  >
-                    <option value="">Выберите услугу</option>
-                    <option value="web_application">Веб-приложение</option>
-                    <option value="landing_page">Лендинг</option>
-                    <option value="corporate_site">Корпоративный сайт</option>
-                    <option value="ecommerce">Интернет-магазин</option>
-                    <option value="redesign">Редизайн</option>
-                    <option value="other">Другое</option>
-                  </select>
+                  <div className="custom-select-wrapper" ref={customSelectRef}>
+                    <button
+                      type="button"
+                      className={`custom-select ${errors.serviceType ? 'error' : ''}`}
+                      onClick={() => setIsServiceDropdownOpen(!isServiceDropdownOpen)}
+                    >
+                      <span>
+                        {formData.serviceType
+                          ? serviceOptions.find(opt => opt.value === formData.serviceType)?.label
+                          : "Выберите услугу"}
+                      </span>
+                      <span className="custom-select-arrow">▼</span>
+                    </button>
+
+                    {isServiceDropdownOpen && (
+                      <div className="custom-dropdown-options">
+                        {serviceOptions.filter(option => option.value !== '').map((option) => (
+                          <div
+                            key={option.value}
+                            className="dropdown-option"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, serviceType: option.value }));
+                              setIsServiceDropdownOpen(false);
+                              if (errors.serviceType) {
+                                setErrors(prev => ({ ...prev, serviceType: '' }));
+                              }
+                            }}
+                          >
+                            {option.label}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   {errors.serviceType && <span className="error-text">{errors.serviceType}</span>}
                 </div>
 
