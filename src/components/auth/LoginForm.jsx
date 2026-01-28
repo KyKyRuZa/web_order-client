@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { PasswordInput } from '../PasswordInput';
+import { Button } from '../Button';
 import '../../styles/AuthForm.css';
 
-export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
+export const LoginForm = ({ onSwitchToRegister, onSuccess, onSwitchToForgotPassword }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -91,13 +92,15 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
             {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="btn btn-primary submit-btn"
-            disabled={isLoading}
+            variant="primary"
+            size="md"
+            isLoading={isLoading}
+            className="submit-btn"
           >
-            {isLoading ? 'Вход...' : 'Войти'}
-          </button>
+            Войти
+          </Button>
         </form>
 
         <div className="auth-footer">
@@ -109,6 +112,15 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
               onClick={onSwitchToRegister}
             >
               Зарегистрироваться
+            </button>
+          </p>
+          <p>
+            <button
+              type="button"
+              className="switch-link"
+              onClick={onSwitchToForgotPassword}
+            >
+              Забыли пароль?
             </button>
           </p>
         </div>

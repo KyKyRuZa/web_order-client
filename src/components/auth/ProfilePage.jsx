@@ -6,6 +6,8 @@ import { PasswordInput } from '../PasswordInput';
 import { authAPI } from '../../api';
 import { extractPhoneForServer } from '../../api/utils';
 import { ApplicationsList } from './ApplicationsList';
+import { ConfirmationModal } from '../Modal';
+import { Button } from '../Button';
 import '../../styles/ProfilePage.css';
 
 export const ProfilePage = () => {
@@ -13,6 +15,7 @@ export const ProfilePage = () => {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -104,24 +107,36 @@ export const ProfilePage = () => {
     }
 
     try {
+      console.log('DEBUG: Attempting to change password with data:', {
+        currentPassword: passwordData.currentPassword ? '[PROVIDED]' : '[NOT PROVIDED]',
+        newPassword: passwordData.newPassword ? '[PROVIDED]' : '[NOT PROVIDED]',
+        confirmPassword: passwordData.confirmPassword ? '[PROVIDED]' : '[NOT PROVIDED]'
+      });
+
       const result = await authAPI.changePassword({
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
       });
 
+      console.log('DEBUG: Password change result:', result);
+
       if (result.success) {
-        showToast('Пароль успешно изменен!', 'success');
+        showToast('Пароль успешно изменен! Пожалуйста, войдите снова.', 'success');
         // Очистка формы
         setPasswordData({
           currentPassword: '',
           newPassword: '',
           confirmPassword: ''
         });
+        setTimeout(() => {
+          logout();
+        }, 2000); 
       } else {
         showToast(result.message || 'Ошибка изменения пароля', 'error');
       }
     } catch (error) {
       console.error('Password change error:', error);
+      console.error('Password change error details:', error.response?.data || error.message);
       showToast(error.response?.data?.message || 'Ошибка изменения пароля', 'error');
     }
   };
@@ -144,9 +159,9 @@ export const ProfilePage = () => {
           <div className="profile-header">
             <h1>Профиль пользователя</h1>
             {(user?.role === 'admin' || user?.role === 'manager') && (
-              <button className="btn btn-primary" onClick={() => window.location.href = '/admin'}>
+              <Button variant="primary" size="md" onClick={() => window.location.href = '/admin'}>
                 Админ-панель
-              </button>
+              </Button>
             )}
             
           </div>
@@ -207,28 +222,39 @@ export const ProfilePage = () => {
                   Выйти
                 </button>
 
-                <button
-                  className="btn btn-danger"
-                  onClick={async () => {
-                    if (window.confirm('Внимание! При деактивации аккаунта все ваши данные будут удалены и доступ к аккаунту будет потерян. Вы уверены, что хотите деактивировать свой аккаунт?')) {
-                      try {
-                        const result = await authAPI.deactivateAccount();
-
-                        if (result.success) {
-                          alert('Ваш аккаунт успешно деактивирован. Вы будете перенаправлены на главную страницу.');
-                          logout(); // Выход из системы
-                        } else {
-                          alert(result.message || 'Ошибка деактивации аккаунта');
-                        }
-                      } catch (error) {
-                        console.error('Deactivate account error:', error);
-                        alert(error.response?.data?.message || 'Ошибка деактивации аккаунта');
-                      }
-                    }
-                  }}
+                <Button
+                  variant="danger"
+                  size="md"
+                  onClick={() => setShowDeactivateModal(true)}
                 >
                   Деактивировать аккаунт
-                </button>
+                </Button>
+
+                <ConfirmationModal
+                  isOpen={showDeactivateModal}
+                  onClose={() => setShowDeactivateModal(false)}
+                  title="Деактивация аккаунта"
+                  message="Внимание! При деактивации аккаунта все ваши данные будут удалены и доступ к аккаунту будет потерян. Вы уверены, что хотите деактивировать свой аккаунт?"
+                  onConfirm={async () => {
+                    try {
+                      const result = await authAPI.deactivateAccount();
+
+                      if (result.success) {
+                        showToast('Ваш аккаунт успешно деактивирован. Вы будете перенаправлены на главную страницу.', 'success');
+                        logout(); // Выход из системы
+                      } else {
+                        showToast(result.message || 'Ошибка деактивации аккаунта', 'error');
+                      }
+                    } catch (error) {
+                      console.error('Deactivate account error:', error);
+                      showToast(error.response?.data?.message || 'Ошибка деактивации аккаунта', 'error');
+                    } finally {
+                      setShowDeactivateModal(false);
+                    }
+                  }}
+                  confirmText="Деактивировать"
+                  cancelText="Отмена"
+                />
               </div>
             </div>
 
@@ -374,27 +400,27 @@ export const ProfilePage = () => {
                         </div>
 
                         <div className="form-actions">
-                          <button
+                          <Button
                             type="button"
-                            className="btn btn-secondary"
+                            variant="secondary"
+                            size="md"
                             onClick={() => {
                               setPasswordData({
                                 currentPassword: '',
                                 newPassword: '',
                                 confirmPassword: ''
                               });
-                              setPasswordErrorMessage('');
-                              setPasswordSuccessMessage('');
                             }}
                           >
                             Отменить
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             type="submit"
-                            className="btn btn-primary"
+                            variant="primary"
+                            size="md"
                           >
                             Изменить пароль
-                          </button>
+                          </Button>
                         </div>
                       </form>
                     </div>

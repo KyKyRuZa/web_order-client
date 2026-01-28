@@ -3,7 +3,10 @@ import { useAuth } from '../context/AuthContext'; // Путь к контекс�
 import { useApplications } from '../context/ApplicationsContext'; // Путь к контексту заявок
 import { useToast } from '../context/ToastContext';
 import { extractPhoneForServer } from '../api/utils';
+import { applicationsAPI } from '../api';
 import { FontAwesomeIcon } from './FontAwesomeIcon';
+import { SimpleFileUpload } from './SimpleFileUpload';
+import { Button } from './Button';
 import '../styles/OrderForm.css';
 
 export const OrderForm = ({ id }) => {
@@ -19,6 +22,7 @@ export const OrderForm = ({ id }) => {
     contactPhone: '',
     companyName: ''
   });
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false);
@@ -141,9 +145,33 @@ export const OrderForm = ({ id }) => {
       const result = await createApplication(applicationData);
 
       if (result.success) {
+        // Если есть файлы для загрузки, загружаем их после создания заявки
+        if (uploadedFiles.length > 0) {
+          // Note: In a real implementation, you might want to show progress for file uploads
+          showToast(`Заявка создана, загружаем ${uploadedFiles.length} файл(ов)...`, 'info');
+
+          // Upload each file to the newly created application
+          for (const fileObj of uploadedFiles) {
+            const fileData = {
+              file: fileObj.file,
+              category: 'other',
+              description: fileObj.name
+            };
+
+            try {
+              await applicationsAPI.uploadFile(result.application.id, fileData);
+              showToast(`Файл ${fileObj.name} успешно загружен`, 'success');
+            } catch (fileError) {
+              console.error(`Ошибка загрузки файла ${fileObj.name}:`, fileError);
+              showToast(`Ошибка загрузки файла ${fileObj.name}`, 'error');
+            }
+          }
+        }
+
         setIsSubmitted(true);
         showToast('Заявка успешно отправлена', 'success');
-        // Сброс формы
+
+        // Сброс формы и файлов
         setFormData({
           title: '',
           description: '',
@@ -153,6 +181,7 @@ export const OrderForm = ({ id }) => {
           contactPhone: isAuthenticated && user ? user.phone || '' : '',
           companyName: isAuthenticated && user ? user.company_name || '' : ''
         });
+        setUploadedFiles([]); // Clear uploaded files
       } else {
         showToast(result.message, 'error');
       }
@@ -302,9 +331,21 @@ export const OrderForm = ({ id }) => {
                 {errors.contactPhone && <span className="error-text">{errors.contactPhone}</span>}
               </div>
 
-              <button type="submit" className="btn btn-primary submit-btn">
+              <div className="form-group">
+                <SimpleFileUpload
+                  onFilesSelected={setUploadedFiles}
+                  maxFiles={5}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                className="submit-btn"
+              >
                 Отправить заявку
-              </button>
+              </Button>
 
             </form>
           ) : (
@@ -312,12 +353,13 @@ export const OrderForm = ({ id }) => {
               <FontAwesomeIcon icon={['fas', 'check-circle']} style={{ fontSize: '5rem', color: '#00d4aa' }} />
               <h3>Заявка отправлена!</h3>
               <p>Мы свяжемся с вами в ближайшее время</p>
-              <button
-                className="btn btn-secondary"
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => setIsSubmitted(false)}
               >
                 Отправить еще одну
-              </button>
+              </Button>
             </div>
           )}
         </div>

@@ -114,6 +114,60 @@
 .application-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Стили для кнопки "Подробнее" */
+.application-actions .btn-secondary {
+  min-width: auto;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Стили для иконок действий */
+.action-icon {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  padding: 0;
+  min-width: auto;
+}
+
+.action-icon:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.edit-icon {
+  color: var(--accent);
+}
+
+.edit-icon:hover {
+  background: rgba(0, 212, 170, 0.1);
+  border-color: var(--accent);
+}
+
+.delete-icon {
+  color: var(--danger);
+}
+
+.delete-icon:hover {
+  background: rgba(255, 107, 129, 0.1);
+  border-color: var(--danger);
 }
 
 .loading, .error-message, .auth-required {

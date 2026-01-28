@@ -6,6 +6,7 @@ import { ProfilePage } from './auth/ProfilePage';
 import { ApplicationsList } from './auth/ApplicationsList';
 import { AdminPanel } from './admin/AdminPanel';
 import { RequireRole } from './RequireRole';
+import { ForgotPasswordForm } from './auth/ForgotPasswordForm';
 import App from './App';
 
 import '../styles/AppRouter.css';
@@ -41,6 +42,7 @@ export const AppRouter = () => {
         <LoginForm
           onSwitchToRegister={() => navigate('/register')}
           onSuccess={() => navigate('/')}
+          onSwitchToForgotPassword={() => navigate('/forgot-password')}
         />
       </div>
     );
@@ -52,6 +54,16 @@ export const AppRouter = () => {
         <RegisterForm
           onSwitchToLogin={() => navigate('/login')}
           onSuccess={() => navigate('/')}
+        />
+      </div>
+    );
+  }
+
+  if (currentPath === '/forgot-password') {
+    return (
+      <div className="auth-page">
+        <ForgotPasswordForm
+          onSwitchToLogin={() => navigate('/login')}
         />
       </div>
     );

@@ -63,7 +63,9 @@ export const authAPI = {
 
   // Изменение пароля
   changePassword: async (passwordData) => {
+    console.log('DEBUG: Sending password change request with data:', passwordData);
     const response = await api.put('/auth/change-password', passwordData);
+    console.log('DEBUG: Password change response:', response);
     return response.data;
   }
 };

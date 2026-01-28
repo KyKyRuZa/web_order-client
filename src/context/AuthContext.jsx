@@ -90,9 +90,14 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Login error:', error);
       if (showToast) {
-        showToast('Ошибка входа в систему', 'error');
+        if (error.response?.data) {
+          // Используем showApiNotification для обработки специфических ошибок
+          showApiNotification(error.response.data, showToast);
+        } else {
+          showToast('Ошибка входа в систему', 'error');
+        }
       }
-      return { success: false, message: 'Ошибка подключения к серверу' };
+      return { success: false, message: error.response?.data?.message || 'Ошибка подключения к серверу' };
     }
   }, []);
 
@@ -123,9 +128,14 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Register error:', error);
       if (showToast) {
-        showToast('Ошибка регистрации', 'error');
+        if (error.response?.data) {
+          // Используем showApiNotification для обработки специфических ошибок
+          showApiNotification(error.response.data, showToast);
+        } else {
+          showToast('Ошибка регистрации', 'error');
+        }
       }
-      return { success: false, message: 'Ошибка подключения к серверу' };
+      return { success: false, message: error.response?.data?.message || 'Ошибка подключения к серверу' };
     }
   }, []);
 

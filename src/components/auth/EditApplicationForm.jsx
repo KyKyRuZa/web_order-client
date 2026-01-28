@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { FileUpload } from '../FileUpload';
+import { SimpleFileUpload } from '../SimpleFileUpload';
+import { applicationsAPI } from '../../api';
 import { extractPhoneForServer } from '../../api/utils';
 import { FontAwesomeIcon } from '../FontAwesomeIcon';
+import { Button } from '../Button';
 import '../../styles/EditApplicationForm.css';
 
 export const EditApplicationForm = ({ application, onClose, onSave }) => {
@@ -21,10 +23,10 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
     contactPhone: '',
     companyName: '',
     budgetRange: 'negotiable',
-    priority: 'medium',
-    attachments: []
+    priority: 'medium'
   });
-  
+
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,9 +42,11 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
         contactPhone: application.contact_phone || '',
         companyName: application.company_name || '',
         budgetRange: application.budget_range || 'negotiable',
-        priority: application.priority || 'medium',
-        attachments: application.files || []
+        priority: application.priority || 'medium'
       });
+
+      // Initialize uploaded files with existing files
+      setUploadedFiles(application.files || []);
     }
   }, [application]);
 
@@ -112,17 +116,17 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Подготовка данных для отправки
       const phoneForServer = extractPhoneForServer(formData.contactPhone);
-      
+
       const applicationData = {
         title: formData.title,
         service_type: formData.serviceType,
@@ -134,10 +138,37 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
         budget_range: formData.budgetRange,
         priority: formData.priority
       };
-      
+
       const result = await updateApplication(application.id, applicationData);
-      
+
       if (result.success) {
+        // Если есть новые файлы для загрузки, загружаем их после обновления заявки
+        if (uploadedFiles.some(file => !file.id)) { // Проверяем, есть ли новые файлы (без ID)
+          const newFiles = uploadedFiles.filter(file => !file.id);
+          showToast(`Обновление заявки выполнено, загружаем ${newFiles.length} файл(ов)...`, 'info');
+
+          // Upload each new file to the updated application
+          for (const fileObj of newFiles) {
+            const fileData = {
+              file: fileObj.file,
+              category: 'other',
+              description: fileObj.name
+            };
+
+            try {
+              const uploadResult = await applicationsAPI.uploadFile(application.id, fileData);
+              if (uploadResult.success) {
+                showToast(`Файл ${fileObj.name} успешно загружен`, 'success');
+              } else {
+                showToast(`Ошибка загрузки файла ${fileObj.name}: ${uploadResult.message}`, 'error');
+              }
+            } catch (fileError) {
+              console.error(`Ошибка загрузки файла ${fileObj.name}:`, fileError);
+              showToast(`Ошибка загрузки файла ${fileObj.name}`, 'error');
+            }
+          }
+        }
+
         showToast('Заявка успешно обновлена', 'success');
         onSave(result.application);
       } else {
@@ -302,19 +333,29 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
           <div className="file-upload-section">
             <h3>Файлы заявки</h3>
-            <FileUpload
-              applicationId={application.id}
-              initialFiles={application.files || []}
+            <SimpleFileUpload
+              onFilesSelected={setUploadedFiles}
+              maxFiles={5}
             />
           </div>
 
           <div className="form-actions">
-            <button type="button" className="btn btn-secondary" onClick={handleClose}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
+              onClick={handleClose}
+            >
               Отмена
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Сохранение...' : 'Сохранить изменения'}
-            </button>
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              isLoading={isSubmitting}
+            >
+              Сохранить изменения
+            </Button>
           </div>
         </form>
       </div>

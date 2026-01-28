@@ -4,6 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { EditApplicationForm } from './EditApplicationForm';
 import { Header } from '../Header';
+import { ConfirmationModal } from '../Modal';
+import { FontAwesomeIcon } from '../FontAwesomeIcon';
+import { Button } from '../Button';
 import '../../styles/ApplicationsList.css';
 
 export const ApplicationsList = () => {
@@ -11,6 +14,7 @@ export const ApplicationsList = () => {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [editingApplication, setEditingApplication] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, applicationId: null, applicationTitle: '' });
 
   useEffect(() => {
     if (user) {
@@ -109,38 +113,29 @@ export const ApplicationsList = () => {
                 </div>
 
                 <div className="application-actions">
-                  <button className="btn btn-secondary">Подробнее</button>
+                  <Button variant="secondary" size="sm">Подробнее</Button>
                   {(user.id === application.user_id || user.role === 'admin' || user.role === 'manager') && (
                     <button
-                      className="btn btn-primary"
+                      className="action-icon edit-icon"
+                      title="Редактировать"
                       onClick={() => {
                         setEditingApplication(application);
                       }}
                     >
-                      Редактировать
+                      <FontAwesomeIcon icon="pen" />
                     </button>
                   )}
                   {(user.id === application.user_id || user.role === 'admin' || user.role === 'manager') && (
                     <button
-                      className="btn btn-danger"
-                      onClick={async () => {
-                        if (window.confirm(`Вы уверены, что хотите удалить заявку "${application.title}"?`)) {
-                          try {
-                            const result = await deleteApplication(application.id);
-
-                            if (result.success) {
-                              showToast('Заявка успешно удалена', 'success');
-                            } else {
-                              showToast(result.message || 'Ошибка удаления заявки', 'error');
-                            }
-                          } catch (err) {
-                            console.error('Delete application error:', err);
-                            showToast('Ошибка удаления заявки', 'error');
-                          }
-                        }
-                      }}
+                      className="action-icon delete-icon"
+                      title="Удалить"
+                      onClick={() => setDeleteModal({
+                        isOpen: true,
+                        applicationId: application.id,
+                        applicationTitle: application.title
+                      })}
                     >
-                      Удалить
+                      <FontAwesomeIcon icon="trash" />
                     </button>
                   )}
                 </div>
@@ -161,6 +156,31 @@ export const ApplicationsList = () => {
         }}
       />
     )}
+
+    <ConfirmationModal
+      isOpen={deleteModal.isOpen}
+      onClose={() => setDeleteModal({ isOpen: false, applicationId: null, applicationTitle: '' })}
+      title="Удаление заявки"
+      message={`Вы уверены, что хотите удалить заявку "${deleteModal.applicationTitle}"?`}
+      onConfirm={async () => {
+        try {
+          const result = await deleteApplication(deleteModal.applicationId);
+
+          if (result.success) {
+            showToast('Заявка успешно удалена', 'success');
+          } else {
+            showToast(result.message || 'Ошибка удаления заявки', 'error');
+          }
+        } catch (err) {
+          console.error('Delete application error:', err);
+          showToast('Ошибка удаления заявки', 'error');
+        } finally {
+          setDeleteModal({ isOpen: false, applicationId: null, applicationTitle: '' });
+        }
+      }}
+      confirmText="Удалить"
+      cancelText="Отмена"
+    />
     </>
   );
 };

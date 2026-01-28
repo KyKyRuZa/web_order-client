@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { PasswordInput } from '../PasswordInput';
+import { Button } from '../Button';
 import { extractPhoneForServer } from '../../api/utils';
 import '../../styles/AuthForm.css';
 
@@ -179,13 +180,15 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="btn btn-primary submit-btn"
-            disabled={isLoading}
+            variant="primary"
+            size="md"
+            isLoading={isLoading}
+            className="submit-btn"
           >
-            {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
-          </button>
+            Зарегистрироваться
+          </Button>
         </form>
 
         <div className="auth-footer">
