@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { EditApplicationForm } from './EditApplicationForm';
 import { Header } from '../Header';
 import '../../styles/ApplicationsList.css';
 
 export const ApplicationsList = () => {
-  const { applications, loading, error, fetchApplications } = useApplications();
+  const { applications, loading, error, fetchApplications, updateApplication, deleteApplication } = useApplications();
   const { user } = useAuth();
+  const { showToast } = useToast();
+  const [editingApplication, setEditingApplication] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -113,6 +117,39 @@ export const ApplicationsList = () => {
                 
                 <div className="application-actions">
                   <button className="btn btn-secondary">Подробнее</button>
+                  {(user.id === application.user_id || user.role === 'admin' || user.role === 'manager') && (
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        setEditingApplication(application);
+                      }}
+                    >
+                      Редактировать
+                    </button>
+                  )}
+                  {(user.id === application.user_id || user.role === 'admin' || user.role === 'manager') && (
+                    <button
+                      className="btn btn-danger"
+                      onClick={async () => {
+                        if (window.confirm(`Вы уверены, что хотите удалить заявку "${application.title}"?`)) {
+                          try {
+                            const result = await deleteApplication(application.id);
+
+                            if (result.success) {
+                              showToast('Заявка успешно удалена', 'success');
+                            } else {
+                              showToast(result.message || 'Ошибка удаления заявки', 'error');
+                            }
+                          } catch (err) {
+                            console.error('Delete application error:', err);
+                            showToast('Ошибка удаления заявки', 'error');
+                          }
+                        }
+                      }}
+                    >
+                      Удалить
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -120,6 +157,17 @@ export const ApplicationsList = () => {
         )}
       </div>
     </div>
+    {editingApplication && (
+      <EditApplicationForm
+        application={editingApplication}
+        onClose={() => setEditingApplication(null)}
+        onSave={(updatedApplication) => {
+          // После сохранения обновляем заявку в списке
+          setEditingApplication(null);
+          // Обновление происходит автоматически через контекст
+        }}
+      />
+    )}
     </>
   );
 };

@@ -7,10 +7,22 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +34,53 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.eslintcache
+package-lock.json
+
+# Vite specific
+.cache/
+.temp/
+test/
+
+# Testing
+coverage/
+.nyc_output
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional jest cache
+.jest/
+
+# Optional playwright cache
+.playwright/
+
+# Optional cypress cache
+.cypress/
+
+# Optional turbo build system
+.turbo/
+
+# Optional storybook
+storybook-static/
+
+# Optional pnpm
+pnpm-lock.yaml
+
+# Optional package-lock
+package-lock.json
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db

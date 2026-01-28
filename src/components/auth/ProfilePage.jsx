@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { Header } from '../Header';
 import { PasswordInput } from '../PasswordInput';
 import { authAPI } from '../../api';
@@ -9,6 +10,7 @@ import '../../styles/ProfilePage.css';
 
 export const ProfilePage = () => {
   const { user, updateProfile, logout } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -39,8 +41,6 @@ export const ProfilePage = () => {
   });
   const [profileSuccessMessage, setProfileSuccessMessage] = useState('');
   const [profileErrorMessage, setProfileErrorMessage] = useState('');
-  const [passwordSuccessMessage, setPasswordSuccessMessage] = useState('');
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
 
 
   const handleChange = (e) => {
@@ -98,14 +98,6 @@ export const ProfilePage = () => {
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData(prev => ({ ...prev, [name]: value }));
-
-    // Очистка ошибки при изменении поля
-    if (passwordErrorMessage) {
-      setPasswordErrorMessage('');
-    }
-    if (passwordSuccessMessage) {
-      setPasswordSuccessMessage('');
-    }
   };
 
   const handlePasswordSubmit = async (e) => {
@@ -113,7 +105,7 @@ export const ProfilePage = () => {
 
     // Проверка соответствия новых паролей
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordErrorMessage('Новые пароли не совпадают');
+      showToast('Новые пароли не совпадают', 'error');
       return;
     }
 
@@ -124,8 +116,7 @@ export const ProfilePage = () => {
       });
 
       if (result.success) {
-        setPasswordSuccessMessage('Пароль успешно изменен!');
-        setPasswordErrorMessage('');
+        showToast('Пароль успешно изменен!', 'success');
         // Очистка формы
         setPasswordData({
           currentPassword: '',
@@ -133,11 +124,11 @@ export const ProfilePage = () => {
           confirmPassword: ''
         });
       } else {
-        setPasswordErrorMessage(result.message || 'Ошибка изменения пароля');
+        showToast(result.message || 'Ошибка изменения пароля', 'error');
       }
     } catch (error) {
       console.error('Password change error:', error);
-      setPasswordErrorMessage(error.response?.data?.message || 'Ошибка изменения пароля');
+      showToast(error.response?.data?.message || 'Ошибка изменения пароля', 'error');
     }
   };
 
@@ -358,14 +349,6 @@ export const ProfilePage = () => {
                   <div className="tab-pane">
                     <div className="password-change-form">
                       <h3>Изменить пароль</h3>
-
-                      {passwordSuccessMessage && (
-                        <div className="success-message">{passwordSuccessMessage}</div>
-                      )}
-
-                      {passwordErrorMessage && (
-                        <div className="error-message">{passwordErrorMessage}</div>
-                      )}
 
                       <form onSubmit={handlePasswordSubmit}>
                         <div className="form-group">

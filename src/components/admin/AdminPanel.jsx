@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Header } from '../Header';
 import { FontAwesomeIcon } from '../FontAwesomeIcon';
 import { adminAPI } from '../../api';
+import { AdminStats } from './AdminStats';
 import '../../styles/AdminPanel.css';
 
 export const AdminPanel = () => {
@@ -126,6 +127,7 @@ export const AdminPanel = () => {
   const tabs = [
     { id: 'dashboard', label: 'Дашборд', icon: 'chart-bar', allowed: isManager },
     { id: 'applications', label: 'Заявки', icon: 'folder', allowed: isManager },
+    { id: 'statistics', label: 'Статистика', icon: 'chart-line', allowed: isAdmin },
     { id: 'users', label: 'Пользователи', icon: 'users', allowed: isAdmin },
     { id: 'reports', label: 'Отчеты', icon: 'file-alt', allowed: isAdmin },
   ].filter(tab => tab.allowed);
@@ -348,6 +350,10 @@ export const AdminPanel = () => {
                 <h2>Отчеты</h2>
                 <p>Функционал отчетов в разработке</p>
               </div>
+            )}
+
+            {activeTab === 'statistics' && (
+              <AdminStats />
             )}
           </main>
         </div>

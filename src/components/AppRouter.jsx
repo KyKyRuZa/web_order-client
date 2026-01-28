@@ -5,6 +5,7 @@ import { RegisterForm } from './auth/RegisterForm';
 import { ProfilePage } from './auth/ProfilePage';
 import { ApplicationsList } from './auth/ApplicationsList';
 import { AdminPanel } from './admin/AdminPanel';
+import { RequireRole } from './RequireRole';
 import App from './App';
 
 import '../styles/AppRouter.css';
@@ -65,7 +66,11 @@ export const AppRouter = () => {
   }
 
   if (currentPath === '/admin' || currentPath === '/admin-panel') {
-    return <AdminPanel />;
+    return (
+      <RequireRole allowedRoles={['admin', 'manager']} redirectTo="/">
+        <AdminPanel />
+      </RequireRole>
+    );
   }
 
   // Для всех остальных маршрутов показываем основное приложение

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { FileUpload } from '../FileUpload';
 import { FontAwesomeIcon } from '../../components/FontAwesomeIcon';
 import { extractPhoneForServer } from '../../api/utils';
 import '../../styles/ApplicationForm.css';
@@ -8,7 +10,8 @@ import '../../styles/ApplicationForm.css';
 export const ApplicationForm = ({ onSuccess, onCancel }) => {
   const { createApplication } = useApplications();
   const { user } = useAuth();
-  
+  const { showToast } = useToast();
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -19,6 +22,8 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
     companyName: user?.company_name || '',
     budgetRange: ''
   });
+
+  const [createdApplication, setCreatedApplication] = useState(null);
   
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +101,8 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
       const result = await createApplication(applicationData);
 
       if (result.success) {
-        onSuccess && onSuccess(result.application);
+        setCreatedApplication(result.application);
+        showToast('Заявка успешно создана', 'success');
       } else {
         setErrors({ general: result.message });
       }
@@ -242,23 +248,47 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
               placeholder="Название вашей компании"
             />
           </div>
-          
-          <div className="form-actions">
-            <button 
-              type="button" 
-              className="btn btn-secondary"
-              onClick={onCancel}
-            >
-              Отмена
-            </button>
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Создание...' : 'Создать заявку'}
-            </button>
-          </div>
+
+          {createdApplication && (
+            <div className="file-upload-section">
+              <h3>Загрузить файлы к заявке</h3>
+              <FileUpload
+                applicationId={createdApplication.id}
+                initialFiles={createdApplication.files || []}
+              />
+            </div>
+          )}
+
+          {!createdApplication && (
+            <div className="form-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onCancel}
+              >
+                Отмена
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Создание...' : 'Создать заявку'}
+              </button>
+            </div>
+          )}
+
+          {createdApplication && (
+            <div className="form-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={onCancel}
+              >
+                Закрыть
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>

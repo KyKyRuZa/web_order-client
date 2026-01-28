@@ -1,9 +1,5 @@
 import validator from 'validator';
 
-/**
- * Утилиты для валидации и санитизации данных
- */
-
 // Валидация email
 export const validateEmail = (email) => {
   return validator.isEmail(email);
