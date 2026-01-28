@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { Header } from '../Header';
 import { FontAwesomeIcon } from '../FontAwesomeIcon';
 import { adminAPI } from '../../api';
@@ -8,6 +9,7 @@ import '../../styles/AdminPanel.css';
 
 export const AdminPanel = () => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [applications, setApplications] = useState([]);
   const [filteredApplications, setFilteredApplications] = useState([]);
@@ -27,14 +29,16 @@ export const AdminPanel = () => {
       const response = await adminAPI.getApplications({ page: 1, limit: 50 });
       if (response.success) {
         setApplications(response.data.applications || []);
+      } else {
+        showToast(response.message || 'Ошибка загрузки заявок', 'error');
       }
     } catch (err) {
-      setError('Ошибка загрузки заявок');
       console.error('Fetch applications error:', err);
+      showToast('Ошибка загрузки заявок', 'error');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
@@ -49,12 +53,13 @@ export const AdminPanel = () => {
               : app
           )
         );
+        showToast('Статус заявки успешно изменен', 'success');
       } else {
-        alert(response.message || 'Ошибка изменения статуса');
+        showToast(response.message || 'Ошибка изменения статуса', 'error');
       }
     } catch (error) {
       console.error('Update status error:', error);
-      alert(error.response?.data?.message || 'Ошибка изменения статуса');
+      showToast(error.response?.data?.message || 'Ошибка изменения статуса', 'error');
     }
   };
 
@@ -85,15 +90,15 @@ export const AdminPanel = () => {
       if (response.success) {
         setUsers(response.data.users || []);
       } else {
-        setError(response.message || 'Ошибка загрузки пользователей');
+        showToast(response.message || 'Ошибка загрузки пользователей', 'error');
       }
     } catch (err) {
-      setError('Ошибка загрузки пользователей');
       console.error('Fetch users error:', err);
+      showToast('Ошибка загрузки пользователей', 'error');
     } finally {
       setLoading(false);
     }
-  }, [isAdmin]);
+  }, [isAdmin, showToast]);
 
   useEffect(() => {
     if (isManager && activeTab === 'applications') {
@@ -171,11 +176,6 @@ export const AdminPanel = () => {
               </div>
             )}
 
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
 
             {activeTab === 'dashboard' && (
               <div className="dashboard-content">

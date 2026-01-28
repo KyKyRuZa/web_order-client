@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext'; // Путь к контексту аутентификации
 import { useApplications } from '../context/ApplicationsContext'; // Путь к контексту заявок
+import { useToast } from '../context/ToastContext';
 import { extractPhoneForServer } from '../api/utils';
 import { FontAwesomeIcon } from './FontAwesomeIcon';
 import '../styles/OrderForm.css';
@@ -8,6 +9,7 @@ import '../styles/OrderForm.css';
 export const OrderForm = ({ id }) => {
   const { user, isAuthenticated } = useAuth();
   const { createApplication } = useApplications();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -114,6 +116,10 @@ export const OrderForm = ({ id }) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      // Show validation errors as toast notifications
+      Object.values(newErrors).forEach(error => {
+        showToast(error, 'error');
+      });
       return;
     }
 
@@ -136,6 +142,7 @@ export const OrderForm = ({ id }) => {
 
       if (result.success) {
         setIsSubmitted(true);
+        showToast('Заявка успешно отправлена', 'success');
         // Сброс формы
         setFormData({
           title: '',
@@ -147,11 +154,11 @@ export const OrderForm = ({ id }) => {
           companyName: isAuthenticated && user ? user.company_name || '' : ''
         });
       } else {
-        setErrors({ submit: result.message });
+        showToast(result.message, 'error');
       }
     } catch (error) {
       console.error('Ошибка отправки заявки:', error);
-      setErrors({ submit: 'Ошибка отправки заявки' });
+      showToast('Ошибка отправки заявки', 'error');
     }
   };
 
@@ -299,9 +306,6 @@ export const OrderForm = ({ id }) => {
                 Отправить заявку
               </button>
 
-              {errors.submit && (
-                <div className="error-message">{errors.submit}</div>
-              )}
             </form>
           ) : (
             <div className="form-success">

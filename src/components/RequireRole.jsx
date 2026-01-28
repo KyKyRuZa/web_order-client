@@ -1,19 +1,17 @@
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 export const RequireRole = ({ children, allowedRoles = [], redirectTo = '/login' }) => {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading) {
       // Если пользователь не авторизован или у него нет разрешенной роли
       if (!user || !allowedRoles.includes(user.role)) {
-        navigate(redirectTo);
+        window.location.href = redirectTo;
       }
     }
-  }, [user, loading, allowedRoles, redirectTo, navigate]);
+  }, [user, loading, allowedRoles, redirectTo]);
 
   // Если пользователь загружается, показываем заглушку
   if (loading) {

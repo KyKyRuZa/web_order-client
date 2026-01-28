@@ -18,6 +18,12 @@ export const ApplicationsList = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (error) {
+      showToast(error, 'error');
+    }
+  }, [error, showToast]);
+
   if (!user) {
     return (
       <>
@@ -46,24 +52,11 @@ export const ApplicationsList = () => {
     );
   }
 
-  if (error) {
-    return (
-      <>
-        <Header />
-        <div className="applications-page">
-          <div className="applications-container">
-            <div className="error-message">{error}</div>
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <Header />
       <div className="applications-page">
-        <div className="applications-container">  
+        <div className="applications-container">
         {applications.length === 0 ? (
           <div className="no-applications">
             <p>У вас пока нет заявок</p>
@@ -79,28 +72,28 @@ export const ApplicationsList = () => {
                     {application.statusDisplay}
                   </span>
                 </div>
-                
+
                 <div className="application-details">
                   <div className="detail-item">
                     <span className="label">Тип услуги:</span>
                     <span className="value">{application.serviceTypeDisplay}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="label">Дата создания:</span>
                     <span className="value">{new Date(application.created_at).toLocaleDateString()}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="label">Контактное лицо:</span>
                     <span className="value">{application.contact_full_name}</span>
                   </div>
-                  
+
                   <div className="detail-item">
                     <span className="label">Компания:</span>
                     <span className="value">{application.company_name || 'Не указана'}</span>
                   </div>
-                  
+
                   {application.budget_range && (
                     <div className="detail-item">
                       <span className="label">Бюджет:</span>
@@ -114,7 +107,7 @@ export const ApplicationsList = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="application-actions">
                   <button className="btn btn-secondary">Подробнее</button>
                   {(user.id === application.user_id || user.role === 'admin' || user.role === 'manager') && (

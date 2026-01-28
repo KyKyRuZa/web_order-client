@@ -61,6 +61,14 @@ api.interceptors.response.use(
       }
     }
 
+    // Глобальная обработка ошибок - можно раскомментировать, если нужно показывать тосты для всех ошибок
+    // if (error.response?.status >= 500) {
+    //   // Только для критических ошибок сервера
+    //   if (typeof window !== 'undefined' && window.showToastGlobal) {
+    //     window.showToastGlobal('Серверная ошибка. Пожалуйста, попробуйте позже.', 'error');
+    //   }
+    // }
+
     return Promise.reject(error);
   }
 );

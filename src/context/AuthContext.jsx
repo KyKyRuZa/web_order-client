@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authAPI } from '../api';
+import { showApiNotification } from '../utils/toastUtils';
 
 const AuthContext = createContext();
 
@@ -16,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAuthStatus = useCallback(async () => {
+  const checkAuthStatus = useCallback(async (showToast) => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
       setLoading(false);
@@ -33,11 +34,19 @@ export const AuthProvider = ({ children }) => {
         // Токен недействителен, очищаем
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+
+        if (showToast) {
+          showApiNotification(response, showToast, 'Ошибка проверки статуса аутентификации');
+        }
       }
     } catch (error) {
       console.error('Error checking auth status:', error);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+
+      if (showToast) {
+        showToast('Ошибка проверки статуса аутентификации', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -54,7 +63,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [checkAuthStatus]);
 
-  const login = useCallback(async (email, password) => {
+  const login = useCallback(async (email, password, showToast) => {
     try {
       const response = await authAPI.login({ email, password });
 
@@ -67,17 +76,27 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
         setIsAuthenticated(true);
 
+        if (showToast) {
+          showToast('Успешный вход в систему', 'success');
+        }
+
         return { success: true, user };
       } else {
+        if (showToast) {
+          showApiNotification(response, showToast);
+        }
         return { success: false, message: response.message };
       }
     } catch (error) {
       console.error('Login error:', error);
+      if (showToast) {
+        showToast('Ошибка входа в систему', 'error');
+      }
       return { success: false, message: 'Ошибка подключения к серверу' };
     }
   }, []);
 
-  const register = useCallback(async (userData) => {
+  const register = useCallback(async (userData, showToast) => {
     try {
       const response = await authAPI.register(userData);
 
@@ -90,21 +109,38 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
         setIsAuthenticated(true);
 
+        if (showToast) {
+          showToast('Успешная регистрация', 'success');
+        }
+
         return { success: true, user };
       } else {
+        if (showToast) {
+          showApiNotification(response, showToast);
+        }
         return { success: false, message: response.message, errors: response.errors };
       }
     } catch (error) {
       console.error('Register error:', error);
+      if (showToast) {
+        showToast('Ошибка регистрации', 'error');
+      }
       return { success: false, message: 'Ошибка подключения к серверу' };
     }
   }, []);
 
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (showToast) => {
     try {
-      await authAPI.logout();
+      const response = await authAPI.logout();
+
+      if (!response.success && showToast) {
+        showApiNotification(response, showToast, 'Ошибка выхода из системы');
+      }
     } catch (error) {
       console.error('Logout error:', error);
+      if (showToast) {
+        showToast('Ошибка выхода из системы', 'error');
+      }
     } finally {
       // В любом случае очищаем локальное хранилище
       localStorage.removeItem('accessToken');
@@ -117,18 +153,29 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const updateProfile = useCallback(async (profileData) => {
+  const updateProfile = useCallback(async (profileData, showToast) => {
     try {
       const response = await authAPI.updateProfile(profileData);
 
       if (response.success) {
         setUser(response.data.user);
+
+        if (showToast) {
+          showToast('Профиль успешно обновлен', 'success');
+        }
+
         return { success: true, user: response.data.user };
       } else {
+        if (showToast) {
+          showApiNotification(response, showToast);
+        }
         return { success: false, message: response.message };
       }
     } catch (error) {
       console.error('Update profile error:', error);
+      if (showToast) {
+        showToast('Ошибка обновления профиля', 'error');
+      }
       return { success: false, message: 'Ошибка обновления профиля' };
     }
   }, []);

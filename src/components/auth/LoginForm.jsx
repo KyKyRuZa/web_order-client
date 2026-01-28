@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { PasswordInput } from '../PasswordInput';
 import '../../styles/AuthForm.css';
 
@@ -12,6 +13,7 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,30 +26,32 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Валидация
     const newErrors = {};
     if (!formData.email.trim()) newErrors.email = 'Email обязателен';
     if (!formData.password) newErrors.password = 'Пароль обязателен';
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      // Show validation errors as toast notifications
+      Object.values(newErrors).forEach(error => {
+        showToast(error, 'error');
+      });
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
-      const result = await login(formData.email, formData.password);
-      
+      const result = await login(formData.email, formData.password, showToast);
+
       if (result.success) {
         onSuccess && onSuccess();
-      } else {
-        setErrors({ general: result.message });
       }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ general: 'Ошибка входа. Пожалуйста, попробуйте снова.' });
+      showToast('Ошибка входа. Пожалуйста, попробуйте снова.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -58,11 +62,7 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
       <div className="auth-form">
         <h2>Вход в аккаунт</h2>
         <p className="auth-subtitle">Введите свои данные для входа</p>
-        
-        {errors.general && (
-          <div className="error-message">{errors.general}</div>
-        )}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -77,7 +77,7 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
             />
             {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
-          
+
           <div className="form-group">
             <PasswordInput
               id="password"
@@ -90,21 +90,21 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess }) => {
             />
             {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="btn btn-primary submit-btn"
             disabled={isLoading}
           >
             {isLoading ? 'Вход...' : 'Войти'}
           </button>
         </form>
-        
+
         <div className="auth-footer">
           <p>
             Нет аккаунта?{' '}
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="switch-link"
               onClick={onSwitchToRegister}
             >

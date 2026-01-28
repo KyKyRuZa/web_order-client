@@ -73,34 +73,40 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.title.trim()) {
       newErrors.title = 'Укажите название заявки';
     }
-    
+
     if (!formData.serviceType) {
       newErrors.serviceType = 'Выберите тип услуги';
     }
-    
+
     if (!formData.description.trim()) {
       newErrors.description = 'Опишите вашу заявку';
     }
-    
+
     if (!formData.contactFullName.trim()) {
       newErrors.contactFullName = 'Укажите контактное лицо';
     }
-    
+
     if (!formData.contactEmail.trim()) {
       newErrors.contactEmail = 'Укажите email';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
       newErrors.contactEmail = 'Некорректный email';
     }
-    
+
     if (!formData.contactPhone.trim()) {
       newErrors.contactPhone = 'Укажите телефон';
     }
-    
+
     setErrors(newErrors);
+
+    // Show validation errors as toast notifications
+    Object.values(newErrors).forEach(error => {
+      showToast(error, 'error');
+    });
+
     return Object.keys(newErrors).length === 0;
   };
 

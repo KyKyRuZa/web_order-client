@@ -84,6 +84,10 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      // Show validation errors as toast notifications
+      Object.values(newErrors).forEach(error => {
+        showToast(error, 'error');
+      });
       return;
     }
 
@@ -104,11 +108,11 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
         setCreatedApplication(result.application);
         showToast('Заявка успешно создана', 'success');
       } else {
-        setErrors({ general: result.message });
+        showToast(result.message, 'error');
       }
     } catch (error) {
       console.error('Application creation error:', error);
-      setErrors({ general: 'Ошибка создания заявки' });
+      showToast('Ошибка создания заявки', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -124,9 +128,6 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
           </button>
         </div>
         
-        {errors.general && (
-          <div className="error-message">{errors.general}</div>
-        )}
         
         <form onSubmit={handleSubmit} className="application-form">
           <div className="form-group">

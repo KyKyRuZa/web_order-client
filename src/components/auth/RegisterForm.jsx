@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { PasswordInput } from '../PasswordInput';
 import { extractPhoneForServer } from '../../api/utils';
 import '../../styles/AuthForm.css';
@@ -15,8 +16,9 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { register } = useAuth();
+  const { showToast } = useToast();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +46,7 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Валидация
     const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = 'ФИО обязательно';
@@ -53,14 +55,18 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
     if (formData.password.length < 6) newErrors.password = 'Пароль должен быть не менее 6 символов';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Пароли не совпадают';
     if (!formData.phone.trim()) newErrors.phone = 'Телефон обязателен';
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      // Show validation errors as toast notifications
+      Object.values(newErrors).forEach(error => {
+        showToast(error, 'error');
+      });
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       // Подготовка данных для отправки - телефон преобразуем в формат без форматирования
       const phoneForServer = extractPhoneForServer(formData.phone);
@@ -73,16 +79,14 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
         companyName: formData.companyName
       };
 
-      const result = await register(userData);
-      
+      const result = await register(userData, showToast);
+
       if (result.success) {
         onSuccess && onSuccess();
-      } else {
-        setErrors({ general: result.message });
       }
     } catch (error) {
       console.error('Registration error:', error);
-      setErrors({ general: 'Ошибка регистрации. Пожалуйста, попроруйте снова.' });
+      showToast('Ошибка регистрации. Пожалуйста, попробуйте снова.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -93,11 +97,7 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
       <div className="auth-form">
         <h2>Создать аккаунт</h2>
         <p className="auth-subtitle">Заполните данные для регистрации</p>
-        
-        {errors.general && (
-          <div className="error-message">{errors.general}</div>
-        )}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="fullName">ФИО</label>
@@ -112,7 +112,7 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
             />
             {errors.fullName && <span className="error-text">{errors.fullName}</span>}
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -126,7 +126,7 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
             />
             {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
-          
+
           <div className="form-group">
             <PasswordInput
               id="password"
@@ -152,7 +152,7 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
             />
             {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="phone">Телефон</label>
             <input
@@ -166,7 +166,7 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
             />
             {errors.phone && <span className="error-text">{errors.phone}</span>}
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="companyName">Название компании (необязательно)</label>
             <input
@@ -178,21 +178,21 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
               placeholder="Название вашей компании"
             />
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="btn btn-primary submit-btn"
             disabled={isLoading}
           >
             {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>
         </form>
-        
+
         <div className="auth-footer">
           <p>
             Уже есть аккаунт?{' '}
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="switch-link"
               onClick={onSwitchToLogin}
             >

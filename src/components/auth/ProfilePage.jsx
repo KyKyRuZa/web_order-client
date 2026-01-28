@@ -39,10 +39,6 @@ export const ProfilePage = () => {
     newPassword: '',
     confirmPassword: ''
   });
-  const [profileSuccessMessage, setProfileSuccessMessage] = useState('');
-  const [profileErrorMessage, setProfileErrorMessage] = useState('');
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -75,19 +71,17 @@ export const ProfilePage = () => {
         phone: phoneForServer
       };
 
-      const result = await updateProfile(profileData);
+      const result = await updateProfile(profileData, showToast);
 
       if (result.success) {
-        setProfileSuccessMessage('Профиль успешно обновлен!');
-        setProfileErrorMessage('');
+        showToast('Профиль успешно обновлен!', 'success');
         setIsEditing(false);
-        setTimeout(() => setProfileSuccessMessage(''), 3000);
       } else {
-        setProfileErrorMessage(result.message);
+        showToast(result.message, 'error');
       }
     } catch (error) {
       console.error('Profile update error:', error);
-      setProfileErrorMessage('Ошибка обновления профиля');
+      showToast('Ошибка обновления профиля', 'error');
     }
   };
 
@@ -275,13 +269,6 @@ export const ProfilePage = () => {
                     <div className="profile-edit-section">
                       <h3>Редактировать профиль</h3>
 
-                      {profileSuccessMessage && (
-                        <div className="success-message">{profileSuccessMessage}</div>
-                      )}
-
-                      {profileErrorMessage && (
-                        <div className="error-message">{profileErrorMessage}</div>
-                      )}
 
                       <form onSubmit={handleSubmit}>
                         <div className="form-group">
