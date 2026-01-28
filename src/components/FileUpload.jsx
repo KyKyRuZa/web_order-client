@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useToast } from '../../context/ToastContext';
-import { applicationsAPI } from '../../api';
-import '../../styles/FileUpload.css';
+import { useToast } from '../context/ToastContext';
+import { applicationsAPI } from '../api';
+import '../styles/FileUpload.css';
 
 export const FileUpload = ({ applicationId, onFileUploaded, initialFiles = [] }) => {
   const [files, setFiles] = useState(initialFiles);
@@ -115,6 +115,7 @@ export const FileUpload = ({ applicationId, onFileUploaded, initialFiles = [] })
         <input
           type="file"
           id="file-upload"
+          data-testid="file-upload-input"
           multiple
           onChange={handleFileChange}
           disabled={uploading}

@@ -22,7 +22,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="error-boundary">
+        <div className="error-boundary" data-testid="error-boundary">
           <h2>Произошла ошибка</h2>
           <details style={{ whiteSpace: 'pre-wrap' }}>
             {this.state.error && this.state.error.toString()}

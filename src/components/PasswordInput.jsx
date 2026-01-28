@@ -10,7 +10,9 @@ export const PasswordInput = memo(({
   onChange,
   placeholder,
   required = false,
-  label
+  label,
+  error = false,
+  errorMessage = ''
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -19,7 +21,7 @@ export const PasswordInput = memo(({
   };
 
   return (
-    <div className="password-input-container">
+    <div className={`password-input-container ${error ? 'error' : ''}`} data-testid="password-input-container">
       {label && <label htmlFor={id}>{label}</label>}
       <div className="password-input-wrapper">
         <input
@@ -30,7 +32,7 @@ export const PasswordInput = memo(({
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className="password-input"
+          className={`password-input ${error ? 'error' : ''}`}
         />
         <button
           type="button"
@@ -41,6 +43,9 @@ export const PasswordInput = memo(({
           <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
         </button>
       </div>
+      {error && errorMessage && (
+        <span className="error-text">{errorMessage}</span>
+      )}
     </div>
   );
 });
