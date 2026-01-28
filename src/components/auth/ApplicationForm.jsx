@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { FileUpload } from '../FileUpload';
 import { FontAwesomeIcon } from '../../components/FontAwesomeIcon';
 import { extractPhoneForServer } from '../../api/utils';
+import { Button } from '../Button';
 import '../../styles/ApplicationForm.css';
 
 export const ApplicationForm = ({ onSuccess, onCancel }) => {
@@ -262,32 +263,35 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
 
           {!createdApplication && (
             <div className="form-actions">
-              <button
+              <Button
                 type="button"
-                className="btn btn-secondary"
+                variant="secondary"
+                size="md"
                 onClick={onCancel}
               >
                 Отмена
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="btn btn-primary"
+                variant="primary"
+                size="md"
                 disabled={isLoading}
               >
                 {isLoading ? 'Создание...' : 'Создать заявку'}
-              </button>
+              </Button>
             </div>
           )}
 
           {createdApplication && (
             <div className="form-actions">
-              <button
+              <Button
                 type="button"
-                className="btn btn-secondary"
+                variant="secondary"
+                size="md"
                 onClick={onCancel}
               >
                 Закрыть
-              </button>
+              </Button>
             </div>
           )}
         </form>

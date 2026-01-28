@@ -15,7 +15,13 @@
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.submit-btn-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 
 .form-group label {
@@ -194,7 +200,7 @@
   }
 
   .form-group {
-    margin-bottom: 1.3rem;
+    margin-bottom: 1.2rem;
   }
 
   .form-group label {
@@ -257,7 +263,7 @@
   }
 
   .form-group {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.1rem;
   }
 
   .form-group label {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../api';
 import { useToast } from '../../context/ToastContext';
+import { Button } from '../Button';
 import '../../styles/AdminStats.css';
 
 export const AdminStats = () => {
@@ -55,7 +56,7 @@ export const AdminStats = () => {
     <div className="admin-stats-container">
       <div className="stats-header">
         <h2>Статистика</h2>
-        <button className="btn btn-secondary" onClick={fetchStats}>Обновить</button>
+        <Button variant="secondary" size="md" onClick={fetchStats}>Обновить</Button>
       </div>
 
       <div className="stats-grid">

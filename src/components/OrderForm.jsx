@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { extractPhoneForServer } from '../api/utils';
 import { applicationsAPI } from '../api';
 import { FontAwesomeIcon } from './FontAwesomeIcon';
-import { SimpleFileUpload } from './SimpleFileUpload';
+import { FileUpload } from './FileUpload';
 import { Button } from './Button';
 import '../styles/OrderForm.css';
 
@@ -332,21 +332,22 @@ export const OrderForm = ({ id }) => {
               </div>
 
               <div className="form-group">
-                <SimpleFileUpload
+                <FileUpload
                   onFilesSelected={setUploadedFiles}
                   maxFiles={5}
                 />
               </div>
 
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                className="submit-btn"
-              >
-                Отправить заявку
-              </Button>
-
+              <div className="submit-btn-container">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  className="submit-btn"
+                >
+                  Отправить заявку
+                </Button>
+              </div>
             </form>
           ) : (
             <div className="form-success">

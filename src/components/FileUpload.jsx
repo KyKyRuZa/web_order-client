@@ -1,148 +1,98 @@
 import { useState } from 'react';
 import { useToast } from '../context/ToastContext';
-import { applicationsAPI } from '../api';
 import '../styles/FileUpload.css';
 
-export const FileUpload = ({ applicationId, onFileUploaded, initialFiles = [] }) => {
-  const [files, setFiles] = useState(initialFiles);
-  const [uploading, setUploading] = useState(false);
+export const FileUpload = ({ onFilesSelected, maxFiles = 5 }) => {
+  const [files, setFiles] = useState([]);
+
+  // Helper function to generate unique IDs
+  const generateId = () => {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  };
   const { showToast } = useToast();
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     
     if (selectedFiles.length === 0) return;
 
-    setUploading(true);
-
-    try {
-      for (const file of selectedFiles) {
-        const fileData = {
-          file: file,
-          category: 'document', // по умолчанию
-          description: file.name
-        };
-
-        try {
-          const result = await applicationsAPI.uploadFile(applicationId, fileData);
-          
-          if (result.success) {
-            setFiles(prev => [...prev, result.data.file]);
-            onFileUploaded && onFileUploaded(result.data.file);
-            showToast(`Файл ${file.name} успешно загружен`, 'success');
-          } else {
-            showToast(`Ошибка загрузки файла ${file.name}: ${result.message}`, 'error');
-          }
-        } catch (err) {
-          console.error(`Upload error for ${file.name}:`, err);
-          showToast(`Ошибка загрузки файла ${file.name}`, 'error');
-        }
-      }
-    } catch (error) {
-      console.error('File upload error:', error);
-      showToast('Ошибка загрузки файлов', 'error');
-    } finally {
-      setUploading(false);
+    // Check if adding these files exceeds the max count
+    if (files.length + selectedFiles.length > maxFiles) {
+      showToast(`Можно загрузить не более ${maxFiles} файлов`, 'error');
+      return;
     }
-  };
 
-  const handleDrop = async (e) => {
-    e.preventDefault();
-    const droppedFiles = Array.from(e.dataTransfer.files);
+    // Process each selected file
+    const newFiles = selectedFiles.map(file => ({
+      id: generateId(),
+      file: file,
+      name: file.name,
+      size: file.size,
+      type: file.type
+    }));
+
+    // Add new files to the existing files
+    const updatedFiles = [...files, ...newFiles];
+    setFiles(updatedFiles);
     
-    if (droppedFiles.length === 0) return;
-
-    setUploading(true);
-
-    try {
-      for (const file of droppedFiles) {
-        const fileData = {
-          file: file,
-          category: 'document',
-          description: file.name
-        };
-
-        try {
-          const result = await applicationsAPI.uploadFile(applicationId, fileData);
-          
-          if (result.success) {
-            setFiles(prev => [...prev, result.data.file]);
-            onFileUploaded && onFileUploaded(result.data.file);
-            showToast(`Файл ${file.name} успешно загружен`, 'success');
-          } else {
-            showToast(`Ошибка загрузки файла ${file.name}: ${result.message}`, 'error');
-          }
-        } catch (err) {
-          console.error(`Upload error for ${file.name}:`, err);
-          showToast(`Ошибка загрузки файла ${file.name}`, 'error');
-        }
-      }
-    } catch (error) {
-      console.error('File upload error:', error);
-      showToast('Ошибка загрузки файлов', 'error');
-    } finally {
-      setUploading(false);
+    // Notify parent component about the new files
+    onFilesSelected && onFilesSelected(updatedFiles);
+    
+    // Show success message
+    if (selectedFiles.length === 1) {
+      showToast(`Файл ${selectedFiles[0].name} добавлен`, 'success');
+    } else {
+      showToast(`${selectedFiles.length} файла(ов) добавлено`, 'success');
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
+  const removeFile = (indexToRemove) => {
+    const updatedFiles = files.filter((_, index) => index !== indexToRemove);
+    setFiles(updatedFiles);
+    onFilesSelected && onFilesSelected(updatedFiles);
+    showToast('Файл удален', 'info');
   };
 
-  const removeFile = async (fileId) => {
-    try {
-      const result = await applicationsAPI.deleteFile(fileId);
-      
-      if (result.success) {
-        setFiles(prev => prev.filter(file => file.id !== fileId));
-        showToast('Файл успешно удален', 'success');
-      } else {
-        showToast(result.message || 'Ошибка удаления файла', 'error');
-      }
-    } catch (error) {
-      console.error('File deletion error:', error);
-      showToast('Ошибка удаления файла', 'error');
-    }
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
-    <div className="file-upload-container">
-      <div
-        className="file-upload-area"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-      >
+    <div className="file-upload">
+      <div className="file-upload-area">
+        <label htmlFor="file-upload" className="file-upload-label">
+          <p>Прикрепить файлы</p>
+        </label>
         <input
           type="file"
           id="file-upload"
-          data-testid="file-upload-input"
           multiple
           onChange={handleFileChange}
-          disabled={uploading}
         />
-        <label htmlFor="file-upload" className="file-upload-label">
-          <div className="file-upload-icon">📁</div>
-          <p>
-            {uploading ? 'Загрузка файлов...' : 'Перетащите файлы сюда или нажмите для выбора'}
-          </p>
-          <small className="file-upload-hint">Поддерживаются все типы файлов</small>
-        </label>
+        
       </div>
 
       {files.length > 0 && (
-        <div className="uploaded-files-list">
-          <h4>Загруженные файлы</h4>
+        <div className="selected-files-list">
+          <h4>Выбранные файлы ({files.length}/{maxFiles})</h4>
           <ul>
-            {files.map((file) => (
-              <li key={file.id} className="uploaded-file-item">
+            {files.map((fileObj) => (
+              <li key={fileObj.id} className="file-item">
                 <div className="file-info">
-                  <span className="file-name">{file.original_name}</span>
-                  <span className="file-size">({(file.size / 1024).toFixed(1)} KB)</span>
+                  <span className="file-name">{fileObj.name}</span>
+                  <span className="file-size">({formatFileSize(fileObj.size)})</span>
                 </div>
                 <button
-                  className="file-remove-btn"
-                  onClick={() => removeFile(file.id)}
-                  disabled={uploading}
+                  className="remove-btn"
+                  onClick={() => {
+                    const index = files.findIndex(f => f.id === fileObj.id);
+                    removeFile(index);
+                  }}
+                  type="button"
                 >
                   ×
                 </button>

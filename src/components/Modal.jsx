@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './Button';
 import '../styles/Modal.css';
 
 export const Modal = ({ isOpen, onClose, title, children, type = 'info' }) => {
@@ -33,8 +34,8 @@ export const ConfirmationModal = ({ isOpen, onClose, title, message, onConfirm, 
           <p>{message}</p>
         </div>
         <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>{cancelText}</button>
-          <button className="btn btn-danger" onClick={onConfirm}>{confirmText}</button>
+          <Button variant="secondary" size="md" onClick={onClose}>{cancelText}</Button>
+          <Button variant="danger" size="md" onClick={onConfirm}>{confirmText}</Button>
         </div>
       </div>
     </div>

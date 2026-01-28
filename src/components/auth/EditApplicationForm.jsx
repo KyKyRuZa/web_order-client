@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { SimpleFileUpload } from '../SimpleFileUpload';
+import { FileUpload } from '../FileUpload';
 import { applicationsAPI } from '../../api';
 import { extractPhoneForServer } from '../../api/utils';
 import { FontAwesomeIcon } from '../FontAwesomeIcon';
@@ -333,7 +333,7 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
           <div className="file-upload-section">
             <h3>Файлы заявки</h3>
-            <SimpleFileUpload
+            <FileUpload
               onFilesSelected={setUploadedFiles}
               maxFiles={5}
             />

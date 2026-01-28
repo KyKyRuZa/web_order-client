@@ -1,27 +1,35 @@
-/* FileUpload.css */
+/* SimpleFileUpload.css */
 
-.file-upload-container {
-  margin: 1.5rem 0;
+.file-upload {
+  margin: 1rem 0;
 }
 
 .file-upload-area {
-  border: 2px dashed var(--border);
-  border-radius: 8px;
-  padding: 2rem;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  padding: 0.75rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
   background: var(--bg-input);
+  display: inline-block;
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .file-upload-area:hover {
   border-color: var(--accent);
-  background: rgba(100, 100, 255, 0.05);
+  background: rgba(0, 212, 170, 0.05);
 }
 
-.file-upload-area.drag-over {
-  border-color: var(--accent);
-  background: rgba(100, 100, 255, 0.1);
+.file-upload-area p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 input[type="file"] {
@@ -32,79 +40,78 @@ input[type="file"] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.25rem;
   cursor: pointer;
+  width: 100%;
+  padding: 0.25rem;
 }
 
-.file-upload-icon {
-  font-size: 2.5rem;
+.selected-files-list {
+  margin-top: 0.5rem;
 }
 
-.file-upload-hint {
-  color: var(--text-secondary);
+.selected-files-list h4 {
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
   font-size: 0.8rem;
 }
 
-.uploaded-files-list {
-  margin-top: 1.5rem;
-}
-
-.uploaded-files-list h4 {
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-}
-
-.uploaded-files-list ul {
+.selected-files-list ul {
   list-style: none;
   padding: 0;
 }
 
-.uploaded-file-item {
+.file-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
+  padding: 0.2rem 0.3rem;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.2rem;
   background: var(--bg-card);
+  font-size: 0.75rem;
 }
 
 .file-info {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
 }
 
 .file-name {
   font-weight: 500;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  font-size: 0.75rem;
 }
 
 .file-size {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
 }
 
-.file-remove-btn {
-  background: #ff6b6b;
+.remove-btn {
+  background: var(--danger);
   color: white;
   border: none;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.7rem;
   transition: background 0.2s;
+  margin-left: 0.3rem;
 }
 
-.file-remove-btn:hover {
+.remove-btn:hover {
   background: #ff5252;
-}
-
-.file-remove-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }

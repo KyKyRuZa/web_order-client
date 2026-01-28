@@ -8,6 +8,7 @@ import { extractPhoneForServer } from '../../api/utils';
 import { ApplicationsList } from './ApplicationsList';
 import { ConfirmationModal } from '../Modal';
 import { Button } from '../Button';
+import { FontAwesomeIcon } from '../FontAwesomeIcon';
 import '../../styles/ProfilePage.css';
 
 export const ProfilePage = () => {
@@ -172,10 +173,7 @@ export const ProfilePage = () => {
             <div className="profile-info-column">
               <div className="profile-card">
                 <div className="profile-avatar">
-                  <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="40" r="20" fill="var(--accent)" />
-                    <path d="M30,80 Q50,65 70,80 T90,80" fill="var(--accent)" />
-                  </svg>
+                  <FontAwesomeIcon icon="user" style={{ fontSize: '4rem', color: 'var(--accent)' }} />
                 </div>
 
                 <div className="profile-details">
@@ -215,20 +213,25 @@ export const ProfilePage = () => {
               </div>
 
               <div className="account-actions">
-                <button
-                  className="btn-logout"
-                  onClick={handleLogout}
-                >
-                  Выйти
-                </button>
-
                 <Button
                   variant="danger"
                   size="md"
                   onClick={() => setShowDeactivateModal(true)}
+                  fullWidth={true}
                 >
                   Деактивировать аккаунт
                 </Button>
+                
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={handleLogout}
+                  fullWidth={true}
+                >
+                  Выйти
+                </Button>
+
+                
 
                 <ConfirmationModal
                   isOpen={showDeactivateModal}
@@ -346,12 +349,13 @@ export const ProfilePage = () => {
                         </div>
 
                         <div className="form-actions">
-                          <button
+                          <Button
                             type="submit"
-                            className="btn btn-primary"
+                            variant="primary"
+                            size="md"
                           >
                             Сохранить изменения
-                          </button>
+                          </Button>
                         </div>
                       </form>
                     </div>

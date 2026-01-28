@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import '../styles/Hero.css';
 
 export const Hero = ({ id }) => {
@@ -11,8 +12,8 @@ export const Hero = ({ id }) => {
           CRM-систем. Технологии, которые объединяют.
         </p>
         <div className="hero-buttons">
-          <a href="#order" className="btn btn-primary">Начать проект</a>
-          <a href="#services" className="btn btn-secondary">Узнать больше</a>
+          <Button variant="primary" size="lg" onClick={() => document.querySelector('#order')?.scrollIntoView({ behavior: 'smooth' })}>Начать проект</Button>
+          <Button variant="secondary" size="lg" onClick={() => document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' })}>Узнать больше</Button>
         </div>
       </div>
     </section>
