@@ -495,3 +495,35 @@
     padding: 1.25rem;
   }
 }
+
+/* Стили для переключателя вида статистики */
+.stats-view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.view-toggle-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.view-toggle-btn:hover {
+  background: var(--bg-card-hover);
+}
+
+.view-toggle-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.statistics-content {
+  width: 100%;
+}

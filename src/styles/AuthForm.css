@@ -11,7 +11,7 @@
   border-radius: 16px;
   padding: 2.5rem;
   width: 100%;
-  width: 450px;
+  width: 550px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border);
 }
@@ -32,13 +32,12 @@
 
 .form-group {
   margin-bottom: 1.5rem;
+  
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-  font-weight: 500;
+/* Убираем стандартные label из form-group */
+.form-group > label {
+  display: none;
 }
 
 .form-group input {
@@ -46,7 +45,6 @@
   padding: 14px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--bg-dark);
   color: var(--text-primary);
   font-size: 1rem;
   transition: border-color 0.3s;
@@ -55,6 +53,7 @@
 .form-group input:focus {
   outline: none;
   border-color: var(--accent);
+  
 }
 
 .form-group input.error {
@@ -79,7 +78,6 @@
 }
 
 .submit-btn {
-  width: 100%;
   margin-top: 1rem;
   padding: 14px;
   font-size: 1rem;
@@ -144,6 +142,104 @@
   color: var(--accent-light);
 }
 
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.floating-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.floating-label {
+  position: absolute;
+  top: 14px;
+  left: 48px; /* С учетом иконки слева */
+  font-size: 1rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 2; /* Выше чем иконка */
+}
+
+.floating-input {
+  width: 100%;
+  padding: 18px 16px 10px 48px; /* отступ слева под иконку */
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  appearance: none;
+}
+
+.floating-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0, 160, 255, 0.2);
+}
+
+/* Анимация "плавающего" лейбла */
+.floating-input:not(:placeholder-shown) ~ .floating-label,
+.floating-input:focus ~ .floating-label {
+  top: -10px;
+  left: 12px; /* Смещаем влево при активации */
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: var(--bg-dark); /* Используем цвет фона инпута для согласованности */
+  padding: 0 6px;
+  border-radius: 4px;
+  transform: translateY(0);
+}
+
+/* Обработка автозаполнения */
+.floating-input:-webkit-autofill,
+.floating-input:-webkit-autofill:hover,
+.floating-input:-webkit-autofill:focus,
+.floating-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--bg-dark) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--text-primary) !important;
+  border: 1px solid var(--accent);
+}
+
+.floating-input:-webkit-autofill ~ .floating-label,
+.floating-input:autofill ~ .floating-label {
+  top: -10px;
+  left: 12px;
+  font-size: 0.85rem;
+  color: var(--accent);
+  background: var(--bg-card);
+  padding: 0 6px;
+  border-radius: 4px;
+}
+
+/* Ошибки */
+.floating-input.error {
+  border-color: #ff4757;
+}
+
+.floating-input.error:focus {
+  box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .floating-input {
+    padding: 16px 14px 8px 44px;
+  }
+  .floating-label {
+    font-size: 0.9rem;
+  }
+  .floating-input:not(:placeholder-shown) ~ .floating-label,
+  .floating-input:focus ~ .floating-label {
+    top: -6px;
+    left: 10px;
+    font-size: 0.75rem;
+  }
+}
 /* Адаптация для планшетов */
 @media (max-width: 1023px) {
   .auth-container {
@@ -330,3 +426,4 @@
     font-size: 1rem;
   }
 }
+

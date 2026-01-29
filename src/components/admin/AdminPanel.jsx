@@ -5,6 +5,7 @@ import { Header } from '../Header';
 import { FontAwesomeIcon } from '../FontAwesomeIcon';
 import { adminAPI } from '../../api';
 import { AdminStats } from './AdminStats';
+import { ApplicationDetailsModal } from './ApplicationDetailsModal';
 import '../../styles/AdminPanel.css';
 
 export const AdminPanel = () => {
@@ -17,6 +18,10 @@ export const AdminPanel = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'rejected', 'active'
+  const [statsView, setStatsView] = useState('overview'); // 'overview' или 'detailed'
+  const [statsData, setStatsData] = useState(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Проверяем права доступа
   const isAdmin = user?.role === 'admin';
@@ -39,6 +44,26 @@ export const AdminPanel = () => {
       setLoading(false);
     }
   }, [showToast]);
+
+  const fetchStats = useCallback(async () => {
+    if (!isAdmin) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await adminAPI.getDashboardStats();
+      if (response.success) {
+        setStatsData(response.data);
+      } else {
+        showToast(response.message || 'Ошибка загрузки статистики', 'error');
+      }
+    } catch (err) {
+      console.error('Fetch stats error:', err);
+      showToast('Ошибка загрузки статистики', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [isAdmin, showToast]);
 
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
@@ -63,6 +88,11 @@ export const AdminPanel = () => {
     }
   };
 
+  const handleViewApplication = (applicationId) => {
+    setSelectedApplicationId(applicationId);
+    setIsModalOpen(true);
+  };
+
   const getStatusDisplay = (status) => {
     const statusMap = {
       'draft': 'Черновик',
@@ -78,6 +108,17 @@ export const AdminPanel = () => {
     };
 
     return statusMap[status] || status;
+  };
+
+  const getPriorityDisplay = (priority) => {
+    const priorityMap = {
+      'low': 'Низкий',
+      'medium': 'Средний',
+      'high': 'Высокий',
+      'urgent': 'Срочный'
+    };
+
+    return priorityMap[priority] || priority;
   };
 
   const fetchUsers = useCallback(async () => {
@@ -114,9 +155,16 @@ export const AdminPanel = () => {
       }
       if (isAdmin) {
         fetchUsers();
+        fetchStats();
       }
     }
-  }, [activeTab, isAdmin, isManager, fetchApplications, fetchUsers]);
+    if (activeTab === 'statistics' && isAdmin) {
+      // Загружаем данные для статистики
+      fetchApplications();
+      fetchUsers();
+      fetchStats();
+    }
+  }, [activeTab, isAdmin, isManager, fetchApplications, fetchUsers, fetchStats]);
 
   useEffect(() => {
     // Фильтруем заявки в зависимости от выбранного фильтра
@@ -179,48 +227,72 @@ export const AdminPanel = () => {
 
             {activeTab === 'dashboard' && (
               <div className="dashboard-content">
-                <h2>Дашборд</h2>
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-icon bg-blue">
-                      <FontAwesomeIcon icon="folder" />
-                    </div>
-                    <div className="stat-info">
-                      <h3>{applications.length}</h3>
-                      <p>Всего заявок</p>
-                    </div>
-                  </div>
-                  
-                  <div className="stat-card">
-                    <div className="stat-icon bg-green">
-                      <FontAwesomeIcon icon="check-circle" />
-                    </div>
-                    <div className="stat-info">
-                      <h3>{applications.filter(a => a.status === 'approved' || a.status === 'completed').length}</h3>
-                      <p>Одобренных</p>
-                    </div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon bg-orange">
-                      <FontAwesomeIcon icon="clock" />
-                    </div>
-                    <div className="stat-info">
-                      <h3>{applications.filter(a => a.status === 'in_review' || a.status === 'submitted').length}</h3>
-                      <p>На рассмотрении</p>
-                    </div>
-                  </div>
-                  
-                  <div className="stat-card">
-                    <div className="stat-icon bg-red">
-                      <FontAwesomeIcon icon="user" />
-                    </div>
-                    <div className="stat-info">
-                      <h3>{users.length}</h3>
-                      <p>Пользователей</p>
-                    </div>
+                <div className="stats-header">
+                  <h2>Дашборд</h2>
+                  <div className="stats-view-toggle">
+                    <button
+                      className={`view-toggle-btn ${statsView === 'overview' ? 'active' : ''}`}
+                      onClick={() => setStatsView('overview')}
+                    >
+                      Обзор
+                    </button>
+                    <button
+                      className={`view-toggle-btn ${statsView === 'detailed' ? 'active' : ''}`}
+                      onClick={() => setStatsView('detailed')}
+                    >
+                      Подробно
+                    </button>
                   </div>
                 </div>
+
+                {statsView === 'overview' ? (
+                  <div className="dashboard-content">
+                    <h3>Обзор статистики</h3>
+                    <div className="stats-grid">
+                      <div className="stat-card">
+                        <div className="stat-icon bg-blue">
+                          <FontAwesomeIcon icon="folder" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{applications.length}</h3>
+                          <p>Всего заявок</p>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon bg-green">
+                          <FontAwesomeIcon icon="check-circle" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{applications.filter(a => a.status === 'approved' || a.status === 'completed').length}</h3>
+                          <p>Одобренных</p>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon bg-orange">
+                          <FontAwesomeIcon icon="clock" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{applications.filter(a => a.status === 'in_review' || a.status === 'submitted').length}</h3>
+                          <p>На рассмотрении</p>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon bg-red">
+                          <FontAwesomeIcon icon="user" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{users.length}</h3>
+                          <p>Пользователей</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <AdminStats statsData={statsData} onRefresh={fetchStats} />
+                )}
               </div>
             )}
 
@@ -270,7 +342,11 @@ export const AdminPanel = () => {
                           <td>{new Date(app.created_at).toLocaleDateString()}</td>
                           <td>{app.contact_full_name}</td>
                           <td>
-                            <button className="action-btn view-btn">
+                            <button
+                              className="action-btn view-btn"
+                              onClick={() => handleViewApplication(app.id)}
+                              title="Просмотреть детали заявки"
+                            >
                               <FontAwesomeIcon icon="eye" />
                             </button>
                             <select
@@ -296,6 +372,15 @@ export const AdminPanel = () => {
                   </table>
                 </div>
               </div>
+            )}
+
+            {isModalOpen && (
+              <ApplicationDetailsModal
+                applicationId={selectedApplicationId}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onUpdate={fetchApplications} // Обновить список заявок после закрытия
+              />
             )}
 
             {activeTab === 'users' && (
@@ -353,7 +438,74 @@ export const AdminPanel = () => {
             )}
 
             {activeTab === 'statistics' && (
-              <AdminStats />
+              <div className="statistics-content">
+                <div className="stats-header">
+                  <h2>Статистика</h2>
+                  <div className="stats-view-toggle">
+                    <button
+                      className={`view-toggle-btn ${statsView === 'overview' ? 'active' : ''}`}
+                      onClick={() => setStatsView('overview')}
+                    >
+                      Обзор
+                    </button>
+                    <button
+                      className={`view-toggle-btn ${statsView === 'detailed' ? 'active' : ''}`}
+                      onClick={() => setStatsView('detailed')}
+                    >
+                      Подробно
+                    </button>
+                  </div>
+                </div>
+
+                {statsView === 'overview' ? (
+                  <div className="dashboard-content">
+                    <h3>Обзор статистики</h3>
+                    <div className="stats-grid">
+                      <div className="stat-card">
+                        <div className="stat-icon bg-blue">
+                          <FontAwesomeIcon icon="folder" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{applications.length}</h3>
+                          <p>Всего заявок</p>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon bg-green">
+                          <FontAwesomeIcon icon="check-circle" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{applications.filter(a => a.status === 'approved' || a.status === 'completed').length}</h3>
+                          <p>Одобренных</p>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon bg-orange">
+                          <FontAwesomeIcon icon="clock" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{applications.filter(a => a.status === 'in_review' || a.status === 'submitted').length}</h3>
+                          <p>На рассмотрении</p>
+                        </div>
+                      </div>
+
+                      <div className="stat-card">
+                        <div className="stat-icon bg-red">
+                          <FontAwesomeIcon icon="user" />
+                        </div>
+                        <div className="stat-info">
+                          <h3>{users.length}</h3>
+                          <p>Пользователей</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <AdminStats statsData={statsData} onRefresh={fetchStats} />
+                )}
+              </div>
             )}
           </main>
         </div>

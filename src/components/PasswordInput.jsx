@@ -8,11 +8,12 @@ export const PasswordInput = memo(({
   name,
   value,
   onChange,
-  placeholder,
+  placeholder = " ",
   required = false,
-  label,
+  label = "Пароль",
   error = false,
-  errorMessage = ''
+  errorMessage = '',
+  autoComplete = "current-password"
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,31 +22,27 @@ export const PasswordInput = memo(({
   };
 
   return (
-    <div className={`password-input-container ${error ? 'error' : ''}`} data-testid="password-input-container">
-      {label && <label htmlFor={id}>{label}</label>}
-      <div className="password-input-wrapper">
-        <input
-          type={showPassword ? 'text' : 'password'}
-          id={id}
-          name={name}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          className={`password-input ${error ? 'error' : ''}`}
-        />
-        <button
-          type="button"
-          className="password-toggle-button"
-          onClick={toggleShowPassword}
-          aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
-        >
-          <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-        </button>
-      </div>
-      {error && errorMessage && (
-        <span className="error-text">{errorMessage}</span>
-      )}
+    <div className="floating-input-wrapper" data-type="password">
+      <input
+        type={showPassword ? 'text' : 'password'}
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className={`floating-input ${error ? 'error' : ''}`}
+        autoComplete={autoComplete}
+      />
+      <label htmlFor={id} className="floating-label">{label}</label>
+      <button
+        type="button"
+        className="password-toggle-button password-toggle-button--floating"
+        onClick={toggleShowPassword}
+        aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+      >
+        <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+      </button>
     </div>
   );
 });
@@ -57,5 +54,8 @@ PasswordInput.propTypes = {
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   required: PropTypes.bool,
-  label: PropTypes.string
+  label: PropTypes.string,
+  error: PropTypes.bool,
+  errorMessage: PropTypes.string,
+  autoComplete: PropTypes.string
 };

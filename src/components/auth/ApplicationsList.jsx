@@ -3,6 +3,7 @@ import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { EditApplicationForm } from './EditApplicationForm';
+import { ApplicationDetailsModal } from '../admin/ApplicationDetailsModal';
 import { Header } from '../Header';
 import { ConfirmationModal } from '../Modal';
 import { FontAwesomeIcon } from '../FontAwesomeIcon';
@@ -15,6 +16,8 @@ export const ApplicationsList = () => {
   const { showToast } = useToast();
   const [editingApplication, setEditingApplication] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, applicationId: null, applicationTitle: '' });
+  const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -80,7 +83,7 @@ export const ApplicationsList = () => {
                 <div className="application-details">
                   <div className="detail-item">
                     <span className="label">Тип услуги:</span>
-                    <span className="value">{application.serviceTypeDisplay}</span>
+                    <span className="value">{application.serviceTypeDisplay || application.service_type}</span>
                   </div>
 
                   <div className="detail-item">
@@ -98,22 +101,25 @@ export const ApplicationsList = () => {
                     <span className="value">{application.company_name || 'Не указана'}</span>
                   </div>
 
-                  {application.budget_range && (
+                  {application.expected_budget && (
                     <div className="detail-item">
-                      <span className="label">Бюджет:</span>
-                      <span className="value">
-                        {application.budget_range === 'under_50k' && 'До 50 000 ₽'}
-                        {application.budget_range === '50k_100k' && '50 000 - 100 000 ₽'}
-                        {application.budget_range === '100k_300k' && '100 000 - 300 000 ₽'}
-                        {application.budget_range === '300k_500k' && '300 000 - 500 000 ₽'}
-                        {application.budget_range === 'negotiable' && 'По договоренности'}
-                      </span>
+                      <span className="label">Ожидаемый бюджет:</span>
+                      <span className="value">{new Intl.NumberFormat('ru-RU').format(application.expected_budget)} ₽</span>
                     </div>
                   )}
                 </div>
 
                 <div className="application-actions">
-                  <Button variant="secondary" size="sm">Подробнее</Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedApplicationId(application.id);
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    Подробнее
+                  </Button>
                   {(user.id === application.user_id || user.role === 'admin' || user.role === 'manager') && (
                     <button
                       className="action-icon edit-icon"
@@ -154,6 +160,15 @@ export const ApplicationsList = () => {
           setEditingApplication(null);
           // Обновление происходит автоматически через контекст
         }}
+      />
+    )}
+
+    {isModalOpen && (
+      <ApplicationDetailsModal
+        applicationId={selectedApplicationId}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onUpdate={fetchApplications} // Обновить список заявок после закрытия
       />
     )}
 

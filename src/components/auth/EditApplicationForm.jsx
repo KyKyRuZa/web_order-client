@@ -16,13 +16,13 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
   
   const [formData, setFormData] = useState({
     title: '',
-    serviceType: '',
+    service_type: '',
     description: '',
-    contactFullName: '',
-    contactEmail: '',
-    contactPhone: '',
-    companyName: '',
-    budgetRange: 'negotiable',
+    contact_full_name: '',
+    contact_email: '',
+    contact_phone: '',
+    company_name: '',
+    expected_budget: null,
     priority: 'medium'
   });
 
@@ -35,13 +35,13 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
     if (application) {
       setFormData({
         title: application.title || '',
-        serviceType: application.service_type || '',
+        service_type: application.service_type || '',
         description: application.description || '',
-        contactFullName: application.contact_full_name || '',
-        contactEmail: application.contact_email || '',
-        contactPhone: application.contact_phone || '',
-        companyName: application.company_name || '',
-        budgetRange: application.budget_range || 'negotiable',
+        contact_full_name: application.contact_full_name || '',
+        contact_email: application.contact_email || '',
+        contact_phone: application.contact_phone || '',
+        company_name: application.company_name || '',
+        expected_budget: application.expected_budget || null,
         priority: application.priority || 'medium'
       });
 
@@ -72,7 +72,7 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
     if (value.length > 7) formatted += '-' + value.substring(7, 9);
     if (value.length > 9) formatted += '-' + value.substring(9, 11);
 
-    setFormData(prev => ({ ...prev, contactPhone: formatted }));
+    setFormData(prev => ({ ...prev, contact_phone: formatted }));
   };
 
   const validateForm = () => {
@@ -82,26 +82,26 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
       newErrors.title = 'Укажите название заявки';
     }
 
-    if (!formData.serviceType) {
-      newErrors.serviceType = 'Выберите тип услуги';
+    if (!formData.service_type) {
+      newErrors.service_type = 'Выберите тип услуги';
     }
 
     if (!formData.description.trim()) {
       newErrors.description = 'Опишите вашу заявку';
     }
 
-    if (!formData.contactFullName.trim()) {
-      newErrors.contactFullName = 'Укажите контактное лицо';
+    if (!formData.contact_full_name.trim()) {
+      newErrors.contact_full_name = 'Укажите контактное лицо';
     }
 
-    if (!formData.contactEmail.trim()) {
-      newErrors.contactEmail = 'Укажите email';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) {
-      newErrors.contactEmail = 'Некорректный email';
+    if (!formData.contact_email.trim()) {
+      newErrors.contact_email = 'Укажите email';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contact_email)) {
+      newErrors.contact_email = 'Некорректный email';
     }
 
-    if (!formData.contactPhone.trim()) {
-      newErrors.contactPhone = 'Укажите телефон';
+    if (!formData.contact_phone.trim()) {
+      newErrors.contact_phone = 'Укажите телефон';
     }
 
     setErrors(newErrors);
@@ -129,13 +129,13 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
       const applicationData = {
         title: formData.title,
-        service_type: formData.serviceType,
+        service_type: formData.service_type,
         description: formData.description,
-        contact_full_name: formData.contactFullName,
-        contact_email: formData.contactEmail,
+        contact_full_name: formData.contact_full_name,
+        contact_email: formData.contact_email,
         contact_phone: phoneForServer,
-        company_name: formData.companyName,
-        budget_range: formData.budgetRange,
+        company_name: formData.company_name,
+        expected_budget: formData.expected_budget,
         priority: formData.priority
       };
 
@@ -212,23 +212,22 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
             </div>
             
             <div className="form-group">
-              <label htmlFor="serviceType">Тип услуги *</label>
+              <label htmlFor="service_type">Тип услуги *</label>
               <select
-                id="serviceType"
-                name="serviceType"
-                value={formData.serviceType}
+                id="service_type"
+                name="service_type"
+                value={formData.service_type}
                 onChange={handleChange}
-                className={errors.serviceType ? 'error' : ''}
+                className={errors.service_type ? 'error' : ''}
               >
                 <option value="">Выберите тип услуги</option>
-                <option value="website_development">Разработка сайта</option>
-                <option value="crm_system">CRM-система</option>
-                <option value="corporate_messenger">Корпоративный мессенджер</option>
-                <option value="mobile_app">Мобильное приложение</option>
-                <option value="consultation">Консультация</option>
+                <option value="landing_page">Лендинг</option>
+                <option value="corporate_site">Корпоративный сайт</option>
+                <option value="ecommerce">Интернет-магазин</option>
+                <option value="web_application">Веб-приложение</option>
                 <option value="other">Другое</option>
               </select>
-              {errors.serviceType && <span className="error-message">{errors.serviceType}</span>}
+              {errors.service_type && <span className="error-message">{errors.service_type}</span>}
             </div>
           </div>
           
@@ -247,72 +246,67 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
           
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="contactFullName">Контактное лицо *</label>
+              <label htmlFor="contact_full_name">Контактное лицо *</label>
               <input
                 type="text"
-                id="contactFullName"
-                name="contactFullName"
-                value={formData.contactFullName}
+                id="contact_full_name"
+                name="contact_full_name"
+                value={formData.contact_full_name}
                 onChange={handleChange}
-                className={errors.contactFullName ? 'error' : ''}
+                className={errors.contact_full_name ? 'error' : ''}
               />
-              {errors.contactFullName && <span className="error-message">{errors.contactFullName}</span>}
+              {errors.contact_full_name && <span className="error-message">{errors.contact_full_name}</span>}
             </div>
             
             <div className="form-group">
-              <label htmlFor="contactEmail">Email *</label>
+              <label htmlFor="contact_email">Email *</label>
               <input
                 type="email"
-                id="contactEmail"
-                name="contactEmail"
-                value={formData.contactEmail}
+                id="contact_email"
+                name="contact_email"
+                value={formData.contact_email}
                 onChange={handleChange}
-                className={errors.contactEmail ? 'error' : ''}
+                className={errors.contact_email ? 'error' : ''}
               />
-              {errors.contactEmail && <span className="error-message">{errors.contactEmail}</span>}
+              {errors.contact_email && <span className="error-message">{errors.contact_email}</span>}
             </div>
             
             <div className="form-group">
-              <label htmlFor="contactPhone">Телефон *</label>
+              <label htmlFor="contact_phone">Телефон *</label>
               <input
                 type="tel"
-                id="contactPhone"
-                name="contactPhone"
-                value={formData.contactPhone}
+                id="contact_phone"
+                name="contact_phone"
+                value={formData.contact_phone}
                 onChange={handlePhoneChange}
-                className={errors.contactPhone ? 'error' : ''}
+                className={errors.contact_phone ? 'error' : ''}
               />
-              {errors.contactPhone && <span className="error-message">{errors.contactPhone}</span>}
+              {errors.contact_phone && <span className="error-message">{errors.contact_phone}</span>}
             </div>
           </div>
           
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="companyName">Название компании</label>
+              <label htmlFor="company_name">Название компании</label>
               <input
                 type="text"
-                id="companyName"
-                name="companyName"
-                value={formData.companyName}
+                id="company_name"
+                name="company_name"
+                value={formData.company_name}
                 onChange={handleChange}
               />
             </div>
             
             <div className="form-group">
-              <label htmlFor="budgetRange">Бюджет</label>
-              <select
-                id="budgetRange"
-                name="budgetRange"
-                value={formData.budgetRange}
-                onChange={handleChange}
-              >
-                <option value="negotiable">По договоренности</option>
-                <option value="under_50k">До 50 000 ₽</option>
-                <option value="50k_100k">50 000 - 100 000 ₽</option>
-                <option value="100k_300k">100 000 - 300 000 ₽</option>
-                <option value="300k_500k">300 000 - 500 000 ₽</option>
-                <option value="over_500k">Более 500 000 ₽</option>
-              </select>
+              <label htmlFor="expected_budget">Ожидаемый бюджет (₽)</label>
+              <input
+                type="number"
+                id="expected_budget"
+                name="expected_budget"
+                value={formData.expected_budget || ''}
+                onChange={(e) => setFormData({...formData, expected_budget: e.target.value ? Number(e.target.value) : null})}
+                placeholder="Введите сумму бюджета"
+              />
             </div>
             
             <div className="form-group">

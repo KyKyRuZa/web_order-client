@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { PasswordInput } from '../PasswordInput';
 import { Button } from '../Button';
+import { PasswordInput } from '../PasswordInput';
 import { extractPhoneForServer } from '../../api/utils';
 import '../../styles/AuthForm.css';
 
@@ -24,7 +24,6 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Очистка ошибки при изменении поля
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -48,7 +47,6 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Валидация
     const newErrors = {};
     if (!formData.fullName.trim()) newErrors.fullName = 'ФИО обязательно';
     if (!formData.email.trim()) newErrors.email = 'Email обязателен';
@@ -59,7 +57,6 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // Show validation errors as toast notifications
       Object.values(newErrors).forEach(error => {
         showToast(error, 'error');
       });
@@ -69,7 +66,6 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
     setIsLoading(true);
 
     try {
-      // Подготовка данных для отправки - телефон преобразуем в формат без форматирования
       const phoneForServer = extractPhoneForServer(formData.phone);
 
       const userData = {
@@ -100,84 +96,107 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
         <p className="auth-subtitle">Заполните данные для регистрации</p>
 
         <form onSubmit={handleSubmit}>
+          {/* ФИО */}
           <div className="form-group">
-            <label htmlFor="fullName">ФИО</label>
-            <input
-              type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              className={errors.fullName ? 'error' : ''}
-              placeholder="Иванов Иван Иванович"
-            />
+            <div className="floating-input-wrapper" data-type="name">
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                className={`floating-input ${errors.fullName ? 'error' : ''}`}
+                placeholder=" "
+                autoComplete="name"
+              />
+              <label htmlFor="fullName" className="floating-label">ФИО</label>
+            </div>
             {errors.fullName && <span className="error-text">{errors.fullName}</span>}
           </div>
 
+          {/* Email */}
           <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={errors.email ? 'error' : ''}
-              placeholder="email@example.com"
-            />
+            <div className="floating-input-wrapper" data-type="email">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={`floating-input ${errors.email ? 'error' : ''}`}
+                placeholder=" "
+                autoComplete="email"
+              />
+              <label htmlFor="email" className="floating-label">Email</label>
+            </div>
             {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
 
+          {/* Пароль */}
           <div className="form-group">
             <PasswordInput
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
-              required
+              placeholder=" "
               label="Пароль"
+              error={!!errors.password}
+              errorMessage={errors.password}
+              autoComplete="new-password"
             />
             {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
 
+          {/* Подтверждение пароля */}
           <div className="form-group">
             <PasswordInput
               id="confirmPassword"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              placeholder="••••••••"
-              required
+              placeholder=" "
               label="Подтвердите пароль"
+              error={!!errors.confirmPassword}
+              errorMessage={errors.confirmPassword}
+              autoComplete="new-password"
             />
             {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
           </div>
 
+          {/* Телефон */}
           <div className="form-group">
-            <label htmlFor="phone">Телефон</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handlePhoneChange}
-              className={errors.phone ? 'error' : ''}
-              placeholder="+7 (___) ___-__-__"
-            />
+            <div className="floating-input-wrapper" data-type="phone">
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handlePhoneChange}
+                className={`floating-input ${errors.phone ? 'error' : ''}`}
+                placeholder=" "
+                autoComplete="tel"
+              />
+              <label htmlFor="phone" className="floating-label">Телефон</label>
+            </div>
             {errors.phone && <span className="error-text">{errors.phone}</span>}
           </div>
 
+          {/* Название компании */}
           <div className="form-group">
-            <label htmlFor="companyName">Название компании (необязательно)</label>
-            <input
-              type="text"
-              id="companyName"
-              name="companyName"
-              value={formData.companyName}
-              onChange={handleChange}
-              placeholder="Название вашей компании"
-            />
+            <div className="floating-input-wrapper" data-type="company">
+              <input
+                type="text"
+                id="companyName"
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleChange}
+                className="floating-input"
+                placeholder=" "
+                autoComplete="organization"
+              />
+              <label htmlFor="companyName" className="floating-label">Название компании</label>
+            </div>
           </div>
 
           <Button
@@ -186,6 +205,7 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
             size="md"
             isLoading={isLoading}
             className="submit-btn"
+            fullWidth={true}
           >
             Зарегистрироваться
           </Button>

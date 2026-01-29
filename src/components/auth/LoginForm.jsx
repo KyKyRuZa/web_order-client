@@ -66,16 +66,19 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess, onSwitchToForgotPassw
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className={errors.email ? 'error' : ''}
-              placeholder="email@example.com"
-            />
+            <div className="floating-input-wrapper" data-type="email">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={`floating-input ${errors.email ? 'error' : ''}`}
+                placeholder=" "
+                autoComplete="email"
+              />
+              <label htmlFor="email" className="floating-label">Email</label>
+            </div>
             {errors.email && <span className="error-text">{errors.email}</span>}
           </div>
 
@@ -85,9 +88,11 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess, onSwitchToForgotPassw
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
-              required
+              placeholder=" "
               label="Пароль"
+              error={!!errors.password}
+              errorMessage={errors.password}
+              autoComplete="current-password"
             />
             {errors.password && <span className="error-text">{errors.password}</span>}
           </div>
@@ -98,6 +103,7 @@ export const LoginForm = ({ onSwitchToRegister, onSuccess, onSwitchToForgotPassw
             size="md"
             isLoading={isLoading}
             className="submit-btn"
+            fullWidth={true}
           >
             Войти
           </Button>
