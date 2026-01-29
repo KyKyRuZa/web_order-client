@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { FileUpload } from '../FileUpload';
-import { FontAwesomeIcon } from '../../components/FontAwesomeIcon';
+import { FileUpload } from '../utils/FileUpload';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import { extractPhoneForServer } from '../../api/utils';
-import { Button } from '../Button';
+import { Button } from '../utils/Button';
 import '../../styles/ApplicationForm.css';
 
 export const ApplicationForm = ({ onSuccess, onCancel }) => {

@@ -4,10 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { EditApplicationForm } from './EditApplicationForm';
 import { ApplicationDetailsModal } from '../admin/ApplicationDetailsModal';
-import { Header } from '../Header';
-import { ConfirmationModal } from '../Modal';
-import { FontAwesomeIcon } from '../FontAwesomeIcon';
-import { Button } from '../Button';
+import { Header } from '../layout/Header';
+import { ConfirmationModal } from '../utils/Modal';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
+import { Button } from '../utils/Button';
 import '../../styles/ApplicationsList.css';
 
 export const ApplicationsList = () => {

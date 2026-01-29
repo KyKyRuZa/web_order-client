@@ -1,5 +1,5 @@
 import { useToast } from '../../context/ToastContext';
-import { Button } from '../Button';
+import { Button } from '../utils/Button';
 import '../../styles/AdminStats.css';
 
 export const AdminStats = ({ statsData, onRefresh }) => {

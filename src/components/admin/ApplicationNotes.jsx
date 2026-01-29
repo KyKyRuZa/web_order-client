@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { applicationsAPI } from '../../api';
-import { FontAwesomeIcon } from '../FontAwesomeIcon';
-import { Button } from '../Button';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
+import { Button } from '../utils/Button';
 import '../../styles/ApplicationNotes.css';
 
 export const ApplicationNotes = ({ applicationId }) => {

@@ -1,4 +1,4 @@
-import { Button } from './Button';
+import { Button } from './utils/Button';
 import '../styles/Hero.css';
 
 export const Hero = ({ id }) => {

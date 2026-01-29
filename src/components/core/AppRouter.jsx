@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { LoginForm } from './auth/LoginForm';
-import { RegisterForm } from './auth/RegisterForm';
-import { ProfilePage } from './auth/ProfilePage';
-import { ApplicationsList } from './auth/ApplicationsList';
-import { AdminPanel } from './admin/AdminPanel';
-import { RequireRole } from './RequireRole';
-import { ForgotPasswordForm } from './auth/ForgotPasswordForm';
-import App from './App';
+import { LoginForm } from '../components/auth/LoginForm';
+import { RegisterForm } from '../components/auth/RegisterForm';
+import { ProfilePage } from '../components/auth/ProfilePage';
+import { ApplicationsList } from '../components/auth/ApplicationsList';
+import { AdminPanel } from '../components/admin/AdminPanel';
+import { RequireRole } from '../components/common/RequireRole';
+import { ForgotPasswordForm } from '../components/auth/ForgotPasswordForm';
+import App from '../components/core/App';
 
 import '../styles/AppRouter.css';
 

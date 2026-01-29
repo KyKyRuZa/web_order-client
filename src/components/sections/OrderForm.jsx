@@ -4,9 +4,9 @@ import { useApplications } from '../context/ApplicationsContext'; // Путь к
 import { useToast } from '../context/ToastContext';
 import { extractPhoneForServer } from '../api/utils';
 import { applicationsAPI } from '../api';
-import { FontAwesomeIcon } from './FontAwesomeIcon';
-import { FileUpload } from './FileUpload';
-import { Button } from './Button';
+import { FontAwesomeIcon } from './utils/FontAwesomeIcon';
+import { FileUpload } from './utils/FileUpload';
+import { Button } from './utils/Button';
 import '../styles/OrderForm.css';
 
 export const OrderForm = ({ id }) => {

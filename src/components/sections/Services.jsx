@@ -1,4 +1,4 @@
-import { FontAwesomeIcon } from './FontAwesomeIcon';
+import { FontAwesomeIcon } from './utils/FontAwesomeIcon';
 import '../styles/Services.css';
 
 export const Services = ({ id }) => {

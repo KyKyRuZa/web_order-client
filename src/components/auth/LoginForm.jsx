@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { PasswordInput } from '../PasswordInput';
-import { Button } from '../Button';
+import { PasswordInput } from '../utils/PasswordInput';
+import { Button } from '../utils/Button';
 import '../../styles/AuthForm.css';
 
 export const LoginForm = ({ onSwitchToRegister, onSuccess, onSwitchToForgotPassword }) => {

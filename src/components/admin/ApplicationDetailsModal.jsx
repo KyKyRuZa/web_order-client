@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '../FontAwesomeIcon';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import { adminAPI, applicationsAPI } from '../../api';
 import { ApplicationNotes } from './ApplicationNotes'; // Импортируем компонент заметок
 import '../../styles/ApplicationDetailsModal.css';

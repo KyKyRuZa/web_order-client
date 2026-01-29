@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Header } from '../Header';
-import { PasswordInput } from '../PasswordInput';
+import { Header } from '../layout/Header';
+import { PasswordInput } from '../utils/PasswordInput';
 import { authAPI } from '../../api';
 import { extractPhoneForServer } from '../../api/utils';
 import { ApplicationsList } from './ApplicationsList';
-import { ConfirmationModal } from '../Modal';
-import { Button } from '../Button';
-import { FontAwesomeIcon } from '../FontAwesomeIcon';
+import { ConfirmationModal } from '../utils/Modal';
+import { Button } from '../utils/Button';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import '../../styles/ProfilePage.css';
 
 export const ProfilePage = () => {

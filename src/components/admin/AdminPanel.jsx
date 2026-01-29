@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Header } from '../Header';
-import { FontAwesomeIcon } from '../FontAwesomeIcon';
+import { Header } from '../layout/Header';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import { adminAPI } from '../../api';
 import { AdminStats } from './AdminStats';
 import { ApplicationDetailsModal } from './ApplicationDetailsModal';

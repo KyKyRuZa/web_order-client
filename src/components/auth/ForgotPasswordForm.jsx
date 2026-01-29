@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
 import { authAPI } from '../../api';
-import { PasswordInput } from '../PasswordInput';
+import { PasswordInput } from '../utils/PasswordInput';
 import '../../styles/AuthForm.css';
 
 export const ForgotPasswordForm = ({ onSwitchToLogin }) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../../context/ToastContext';
 import '../styles/FileUpload.css';
 
 export const FileUpload = ({ onFilesSelected, maxFiles = 5 }) => {

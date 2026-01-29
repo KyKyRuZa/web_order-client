@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FontAwesomeIcon } from './FontAwesomeIcon';
+import { FontAwesomeIcon } from './utils/FontAwesomeIcon';
 import '../styles/Header.css';
-import { Logo } from './Logo';
+import { Logo } from '../common/Logo';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

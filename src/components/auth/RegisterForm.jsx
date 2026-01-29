@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { Button } from '../Button';
-import { PasswordInput } from '../PasswordInput';
+import { Button } from '../utils/Button';
+import { PasswordInput } from '../utils/PasswordInput';
 import { extractPhoneForServer } from '../../api/utils';
 import '../../styles/AuthForm.css';
 

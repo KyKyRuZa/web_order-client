@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { FileUpload } from '../FileUpload';
+import { FileUpload } from '../utils/FileUpload';
 import { applicationsAPI } from '../../api';
 import { extractPhoneForServer } from '../../api/utils';
-import { FontAwesomeIcon } from '../FontAwesomeIcon';
-import { Button } from '../Button';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
+import { Button } from '../utils/Button';
 import '../../styles/EditApplicationForm.css';
 
 export const EditApplicationForm = ({ application, onClose, onSave }) => {

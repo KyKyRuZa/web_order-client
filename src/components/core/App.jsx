@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { Background } from './Background';
-import { Header } from './Header';
-import { Hero } from './Hero';
-import { Services } from './Services';
-import { About } from './About';
-import { OrderForm } from './OrderForm';
-import { Contact } from './Contact';
-import { Footer } from './Footer';
+import { Background } from '../layout/Background';
+import { Header } from '../layout/Header';
+import { Hero } from '../sections/Hero';
+import { Services } from '../sections/Services';
+import { About } from '../sections/About';
+import { OrderForm } from '../sections/OrderForm';
+import { Contact } from '../sections/Contact';
+import { Footer } from '../layout/Footer';
 
 const App = () => {
   useEffect(() => {
