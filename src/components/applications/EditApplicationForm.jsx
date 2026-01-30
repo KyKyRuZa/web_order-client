@@ -125,7 +125,6 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
     try {
       // Подготовка данных для отправки
-      const phoneForServer = extractPhoneForServer(formData.contactPhone);
 
       const applicationData = {
         title: formData.title,
@@ -133,7 +132,7 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
         description: formData.description,
         contact_full_name: formData.contact_full_name,
         contact_email: formData.contact_email,
-        contact_phone: phoneForServer,
+        contact_phone: extractPhoneForServer(formData.contact_phone),
         company_name: formData.company_name,
         expected_budget: formData.expected_budget,
         priority: formData.priority

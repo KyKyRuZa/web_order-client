@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext'; // Путь к контексту аутентификации
 import { useApplications } from '../../context/ApplicationsContext'; // Путь к контексту заявок
 import { useToast } from '../../context/ToastContext';
-import { extractPhoneForServer } from '../../api/utils';
 import { applicationsAPI } from '../../api';
+import { extractPhoneForServer } from '../../api/utils';
 import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import { FileUpload } from '../utils/FileUpload';
 import { Button } from '../utils/Button';
@@ -44,18 +44,18 @@ export const OrderForm = ({ id }) => {
         setFormData(prev => {
           const updatedData = {
             ...prev,
-            contactFullName: user.full_name || prev.contactFullName,
-            contactEmail: user.email || prev.contactEmail,
-            contactPhone: user.phone || prev.contactPhone,
-            companyName: user.company_name || prev.companyName
+            contact_full_name: user.full_name || prev.contact_full_name,
+            contact_email: user.email || prev.contact_email,
+            contact_phone: user.phone || prev.contact_phone,
+            company_name: user.company_name || prev.company_name
           };
 
           // Проверяем, изменились ли данные
           if (
-            prev.contactFullName !== updatedData.contactFullName ||
-            prev.contactEmail !== updatedData.contactEmail ||
-            prev.contactPhone !== updatedData.contactPhone ||
-            prev.companyName !== updatedData.companyName
+            prev.contact_full_name !== updatedData.contact_full_name ||
+            prev.contact_email !== updatedData.contact_email ||
+            prev.contact_phone !== updatedData.contact_phone ||
+            prev.company_name !== updatedData.company_name
           ) {
             return updatedData;
           }
@@ -129,7 +129,6 @@ export const OrderForm = ({ id }) => {
 
     try {
       // Подготовка данных для отправки
-      const phoneForServer = extractPhoneForServer(formData.contactPhone);
 
       const applicationData = {
         title: formData.title,
@@ -137,7 +136,7 @@ export const OrderForm = ({ id }) => {
         service_type: formData.service_type,
         contact_full_name: formData.contact_full_name,
         contact_email: formData.contact_email,
-        contact_phone: phoneForServer,
+        contact_phone: extractPhoneForServer(formData.contact_phone),
         company_name: formData.company_name
       };
 

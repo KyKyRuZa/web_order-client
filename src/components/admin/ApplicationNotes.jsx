@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { applicationsAPI } from '../../api';
+import { notesAPI } from '../../api';
 import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import { Button } from '../utils/Button';
 import '../../styles/ApplicationNotes.css';
@@ -35,11 +35,11 @@ export const ApplicationNotes = ({ applicationId }) => {
   const loadNotes = async () => {
     try {
       setLoading(true);
-      const response = await applicationsAPI.getNotes(applicationId);
-      
+      const response = await notesAPI.getNotesByApplication(applicationId);
+
       if (response.success) {
         // Сортировка заметок по дате создания (новые первыми)
-        const sortedNotes = response.data.notes.sort((a, b) => 
+        const sortedNotes = response.data.notes.sort((a, b) =>
           new Date(b.created_at) - new Date(a.created_at)
         );
         setNotes(sortedNotes);
@@ -71,7 +71,7 @@ export const ApplicationNotes = ({ applicationId }) => {
         noteType: selectedNoteType
       };
 
-      const response = await applicationsAPI.createNote(applicationId, noteData);
+      const response = await notesAPI.createNote(applicationId, noteData);
 
       if (response.success) {
         setNewNote('');
@@ -92,10 +92,10 @@ export const ApplicationNotes = ({ applicationId }) => {
   // Обновление заметки
   const handleUpdateNote = async (noteId, updatedContent) => {
     try {
-      const response = await applicationsAPI.updateNote(noteId, { content: updatedContent });
+      const response = await notesAPI.updateNote(noteId, { content: updatedContent });
 
       if (response.success) {
-        setNotes(prev => prev.map(note => 
+        setNotes(prev => prev.map(note =>
           note.id === noteId ? { ...note, ...response.data.note } : note
         ));
         showToast('Заметка успешно обновлена', 'success');
@@ -116,7 +116,7 @@ export const ApplicationNotes = ({ applicationId }) => {
     }
 
     try {
-      const response = await applicationsAPI.deleteNote(noteId);
+      const response = await notesAPI.deleteNote(noteId);
 
       if (response.success) {
         setNotes(prev => prev.filter(note => note.id !== noteId));
@@ -133,10 +133,10 @@ export const ApplicationNotes = ({ applicationId }) => {
   // Переключение закрепления заметки
   const handleTogglePin = async (noteId) => {
     try {
-      const response = await applicationsAPI.toggleNotePin(noteId);
+      const response = await notesAPI.togglePin(noteId);
 
       if (response.success) {
-        setNotes(prev => prev.map(note => 
+        setNotes(prev => prev.map(note =>
           note.id === noteId ? { ...note, ...response.data.note } : note
         ));
         showToast(response.data.note.is_pinned ? 'Заметка закреплена' : 'Заметка откреплена', 'info');

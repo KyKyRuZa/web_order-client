@@ -4,7 +4,6 @@ import { useToast } from '../../context/ToastContext';
 import { Header } from '../layout/Header';
 import { PasswordInput } from '../utils/PasswordInput';
 import { authAPI } from '../../api';
-import { extractPhoneForServer } from '../../api/utils';
 import { ApplicationsList } from '../applications/ApplicationsList';
 import { ConfirmationModal } from '../utils/Modal';
 import { Button } from '../utils/Button';
@@ -67,12 +66,9 @@ export const ProfilePage = () => {
     e.preventDefault();
 
     try {
-      // Подготовка данных для отправки - телефон преобразуем в формат без форматирования
-      const phoneForServer = extractPhoneForServer(formData.phone);
-
       const profileData = {
         ...formData,
-        phone: phoneForServer
+        phone: formData.phone
       };
 
       const result = await updateProfile(profileData, showToast);

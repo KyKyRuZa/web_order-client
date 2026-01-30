@@ -1,19 +1,16 @@
 import axios from 'axios';
 
 // Базовая конфигурация axios
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
-  maxRedirects: 0, // Запретить редиректы для предотвращения SSRF
-  validateStatus: (status) => status >= 200 && status < 300,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Интерцептор для добавления токена авторизации к каждому запросу
+// Interceptor для добавления токена авторизации к каждому запросу
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
@@ -27,47 +24,40 @@ api.interceptors.request.use(
   }
 );
 
-// Интерцептор для обработки ошибок и автоматического обновления токена при необходимости
+// Interceptor для обработки ошибок и обновления токена при необходимости
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error) => {
-    if (error.response?.status === 401) {
-      // Попытка обновить токен при 401 ошибке
+    const originalRequest = error.config;
+
+    // Если ошибка 401 и это не запрос на обновление токена
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
-            refreshToken
+            refreshToken,
           });
 
-          if (response.data.success) {
-            const { accessToken, refreshToken: newRefreshToken } = response.data.data;
-            localStorage.setItem('accessToken', accessToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
-
-            // Повторяем оригинальный запрос с новым токеном
-            error.config.headers.Authorization = `Bearer ${accessToken}`;
-            return axios(error.config);
-          }
+          const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+          
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('refreshToken', newRefreshToken);
+          
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          return api(originalRequest);
         }
       } catch (refreshError) {
-        // Если обновление токена не удалось, перенаправляем на страницу входа
-        console.error('Token refresh failed:', refreshError);
+        // Если не удалось обновить токен, перенаправляем на страницу входа
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.location.href = '/login';
       }
     }
-
-    // Глобальная обработка ошибок - можно раскомментировать, если нужно показывать тосты для всех ошибок
-    // if (error.response?.status >= 500) {
-    //   // Только для критических ошибок сервера
-    //   if (typeof window !== 'undefined' && window.showToastGlobal) {
-    //     window.showToastGlobal('Серверная ошибка. Пожалуйста, попробуйте позже.', 'error');
-    //   }
-    // }
 
     return Promise.reject(error);
   }

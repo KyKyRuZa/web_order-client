@@ -96,7 +96,7 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
 
     try {
       // Подготовка данных для отправки - телефон преобразуем в формат без форматирования
-      const phoneForServer = extractPhoneForServer(formData.contactPhone);
+      const phoneForServer = extractPhoneForServer(formData.contact_phone);
 
       const applicationData = {
         ...formData,

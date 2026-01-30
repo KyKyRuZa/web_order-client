@@ -3,7 +3,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Button } from '../utils/Button';
 import { PasswordInput } from '../utils/PasswordInput';
-import { extractPhoneForServer } from '../../api/utils';
 import '../../styles/AuthForm.css';
 
 export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
@@ -66,13 +65,12 @@ export const RegisterForm = ({ onSwitchToLogin, onSuccess }) => {
     setIsLoading(true);
 
     try {
-      const phoneForServer = extractPhoneForServer(formData.phone);
 
       const userData = {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
-        phone: phoneForServer,
+        phone: formData.phone,
         companyName: formData.companyName
       };
 
