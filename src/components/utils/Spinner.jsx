@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/Spinner.css';
+import '../../styles/Spinner.css';
 
 export const Spinner = ({ size, color, className }) => {
   const spinnerStyle = {

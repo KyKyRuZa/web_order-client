@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import '../styles/PasswordInput.css';
+import '../../styles/PasswordInput.css';
 import { memo } from 'react';
 
 export const PasswordInput = memo(({

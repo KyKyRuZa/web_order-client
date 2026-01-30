@@ -1,4 +1,4 @@
-import '../styles/About.css';
+import '../../styles/About.css';
 
 export const About = ({ id }) => {
   return (

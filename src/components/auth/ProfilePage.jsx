@@ -5,7 +5,7 @@ import { Header } from '../layout/Header';
 import { PasswordInput } from '../utils/PasswordInput';
 import { authAPI } from '../../api';
 import { extractPhoneForServer } from '../../api/utils';
-import { ApplicationsList } from './ApplicationsList';
+import { ApplicationsList } from '../applications/ApplicationsList';
 import { ConfirmationModal } from '../utils/Modal';
 import { Button } from '../utils/Button';
 import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';

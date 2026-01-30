@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import '../styles/Toast.css';
+import '../../styles/Toast.css';
 
 export const Toast = ({ toasts, removeToast }) => {
   return (

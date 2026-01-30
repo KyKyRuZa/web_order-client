@@ -1,5 +1,5 @@
-import { FontAwesomeIcon } from './utils/FontAwesomeIcon';
-import '../styles/Services.css';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
+import '../../styles/Services.css';
 
 export const Services = ({ id }) => {
   const services = [

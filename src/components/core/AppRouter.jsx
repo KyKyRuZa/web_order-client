@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { LoginForm } from '../components/auth/LoginForm';
-import { RegisterForm } from '../components/auth/RegisterForm';
-import { ProfilePage } from '../components/auth/ProfilePage';
-import { ApplicationsList } from '../components/auth/ApplicationsList';
-import { AdminPanel } from '../components/admin/AdminPanel';
-import { RequireRole } from '../components/common/RequireRole';
-import { ForgotPasswordForm } from '../components/auth/ForgotPasswordForm';
-import App from '../components/core/App';
+import { useAuth } from '../../context/AuthContext';
+import { LoginForm } from '../auth/LoginForm';
+import { RegisterForm } from '../auth/RegisterForm';
+import { ProfilePage } from '../auth/ProfilePage';
+import { ApplicationsList } from '../applications/ApplicationsList';
+import { AdminPanel } from '../admin/AdminPanel';
+import { RequireRole } from '../common/RequireRole';
+import { ForgotPasswordForm } from '../auth/ForgotPasswordForm';
+import App from './App';
 
-import '../styles/AppRouter.css';
+import '../../styles/AppRouter.css';
 
 export const AppRouter = () => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);

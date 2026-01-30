@@ -1,5 +1,5 @@
-import { FontAwesomeIcon } from './utils/FontAwesomeIcon';
-import '../styles/Contact.css';
+import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
+import '../../styles/Contact.css';
 
 export const Contact = ({ id }) => {
   const contacts = [

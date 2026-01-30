@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from './Button';
-import '../styles/Modal.css';
+import '../../styles/Modal.css';
 
 export const Modal = ({ isOpen, onClose, title, children, type = 'info' }) => {
   if (!isOpen) return null;

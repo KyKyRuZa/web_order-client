@@ -1,5 +1,5 @@
-import { Button } from './utils/Button';
-import '../styles/Hero.css';
+import { Button } from '../utils/Button';
+import '../../styles/Hero.css';
 
 export const Hero = ({ id }) => {
   return (

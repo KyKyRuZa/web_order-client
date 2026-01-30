@@ -1,4 +1,4 @@
-import '../styles/Background.css';
+import '../../styles/Background.css';
 
 export const Background = () => {
   return (

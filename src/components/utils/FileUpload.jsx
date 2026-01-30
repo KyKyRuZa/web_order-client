@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
-import '../styles/FileUpload.css';
+import '../../styles/FileUpload.css';
 
 export const FileUpload = ({ onFilesSelected, maxFiles = 5 }) => {
   const [files, setFiles] = useState([]);

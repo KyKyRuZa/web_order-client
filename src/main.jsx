@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { AuthProvider } from './context/AuthContext'
 import { ApplicationsProvider } from './context/ApplicationsContext'
 import { ToastProvider } from './context/ToastContext'
-import { AppRouter } from './components/AppRouter'
+import { AppRouter } from './components/core/AppRouter'
 import './index.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
