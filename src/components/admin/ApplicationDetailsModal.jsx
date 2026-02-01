@@ -189,6 +189,38 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                       <option value="cancelled">Отменено</option>
                       <option value="rejected">Отклонено</option>
                     </select>
+                  ) : application.status === 'draft' && application.user_id === user.id ? (
+                    <div className="draft-controls">
+                      <span className={`status-badge status-${application.status}`}>
+                        {application.statusDisplay}
+                      </span>
+                      <button
+                        className="btn btn-primary submit-draft-btn"
+                        onClick={async () => {
+                          try {
+                            const response = await applicationsAPI.submit(application.id);
+                            if (response.success) {
+                              setApplication(prevApp => ({
+                                ...prevApp,
+                                status: 'submitted',
+                                statusDisplay: 'Отправлено'
+                              }));
+                              showToast('Заявка успешно отправлена', 'success');
+                              if (onUpdate) {
+                                onUpdate();
+                              }
+                            } else {
+                              showToast(response.message || 'Ошибка отправки заявки', 'error');
+                            }
+                          } catch (error) {
+                            console.error('Submit application error:', error);
+                            showToast(error.response?.data?.message || 'Ошибка отправки заявки', 'error');
+                          }
+                        }}
+                      >
+                        Отправить
+                      </button>
+                    </div>
                   ) : (
                     <span className={`status-badge status-${application.status}`}>
                       {application.statusDisplay}

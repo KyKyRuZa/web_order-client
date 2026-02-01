@@ -16,11 +16,7 @@ export const OrderForm = ({ id }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    service_type: '',
-    contact_full_name: '',
-    contact_email: '',
-    contact_phone: '',
-    company_name: ''
+    service_type: ''
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -38,34 +34,6 @@ export const OrderForm = ({ id }) => {
     { value: 'other', label: 'Другое' }
   ];
 
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      const timer = setTimeout(() => {
-        setFormData(prev => {
-          const updatedData = {
-            ...prev,
-            contact_full_name: user.full_name || prev.contact_full_name,
-            contact_email: user.email || prev.contact_email,
-            contact_phone: user.phone || prev.contact_phone,
-            company_name: user.company_name || prev.company_name
-          };
-
-          // Проверяем, изменились ли данные
-          if (
-            prev.contact_full_name !== updatedData.contact_full_name ||
-            prev.contact_email !== updatedData.contact_email ||
-            prev.contact_phone !== updatedData.contact_phone ||
-            prev.company_name !== updatedData.company_name
-          ) {
-            return updatedData;
-          }
-
-          return prev;
-        });
-      });
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated, user]);
 
   // Закрытие выпадающего списка при клике вне его
   useEffect(() => {
@@ -91,20 +59,6 @@ export const OrderForm = ({ id }) => {
     }
   };
 
-  const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 0 && value[0] !== '7') {
-      value = '7' + value;
-    }
-    let formatted = '';
-    if (value.length > 0) formatted = '+' + value.substring(0, 1);
-    if (value.length > 1) formatted += ' (' + value.substring(1, 4);
-    if (value.length > 4) formatted += ') ' + value.substring(4, 7);
-    if (value.length > 7) formatted += '-' + value.substring(7, 9);
-    if (value.length > 9) formatted += '-' + value.substring(9, 11);
-
-    setFormData(prev => ({ ...prev, contact_phone: formatted }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -114,9 +68,6 @@ export const OrderForm = ({ id }) => {
     if (!formData.title.trim()) newErrors.title = 'Название обязательно';
     if (formData.title.length < 5) newErrors.title = 'Название должно быть не менее 5 символов';
     if (!formData.service_type) newErrors.service_type = 'Тип услуги обязателен';
-    if (!formData.contact_full_name.trim()) newErrors.contact_full_name = 'Контактное лицо обязательно';
-    if (!formData.contact_email.trim()) newErrors.contact_email = 'Email обязателен';
-    if (!formData.contact_phone.trim()) newErrors.contact_phone = 'Телефон обязателен';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -128,16 +79,16 @@ export const OrderForm = ({ id }) => {
     }
 
     try {
-      // Подготовка данных для отправки
+      // Подготовка данных для отправки - используем данные из профиля пользователя
 
       const applicationData = {
         title: formData.title,
         description: formData.description,
         service_type: formData.service_type,
-        contact_full_name: formData.contact_full_name,
-        contact_email: formData.contact_email,
-        contact_phone: extractPhoneForServer(formData.contact_phone),
-        company_name: formData.company_name
+        contact_full_name: user?.full_name || '',
+        contact_email: user?.email || '',
+        contact_phone: extractPhoneForServer(user?.phone || ''),
+        company_name: user?.company_name || ''
       };
 
       // Отправка заявки через контекст
@@ -174,11 +125,7 @@ export const OrderForm = ({ id }) => {
         setFormData({
           title: '',
           description: '',
-          service_type: '',
-          contact_full_name: isAuthenticated && user ? user.full_name || '' : '',
-          contact_email: isAuthenticated && user ? user.email || '' : '',
-          contact_phone: isAuthenticated && user ? user.phone || '' : '',
-          company_name: isAuthenticated && user ? user.company_name || '' : ''
+          service_type: ''
         });
         setUploadedFiles([]); // Clear uploaded files
       } else {
@@ -271,64 +218,8 @@ export const OrderForm = ({ id }) => {
                   {errors.service_type && <span className="error-text">{errors.service_type}</span>}
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="company_name">Компания</label>
-                  <input
-                    type="text"
-                    id="company_name"
-                    name="company_name"
-                    value={formData.company_name}
-                    onChange={handleChange}
-                    placeholder="Название компании"
-                  />
-                </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="contact_full_name">Имя</label>
-                  <input
-                    type="text"
-                    id="contact_full_name"
-                    name="contact_full_name"
-                    value={formData.contact_full_name}
-                    onChange={handleChange}
-                    className={errors.contact_full_name ? 'error' : ''}
-                    placeholder="Ваше имя"
-                    required
-                  />
-                  {errors.contact_full_name && <span className="error-text">{errors.contact_full_name}</span>}
-                </div>
-                <div className="form-group">
-                  <label htmlFor="contact_email">Email</label>
-                  <input
-                    type="email"
-                    id="contact_email"
-                    name="contact_email"
-                    value={formData.contact_email}
-                    onChange={handleChange}
-                    className={errors.contact_email ? 'error' : ''}
-                    placeholder="email@company.com"
-                    required
-                  />
-                  {errors.contact_email && <span className="error-text">{errors.contact_email}</span>}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="contact_phone">Телефон</label>
-                <input
-                  type="tel"
-                  id="contact_phone"
-                  name="contact_phone"
-                  value={formData.contact_phone}
-                  onChange={handlePhoneChange}
-                  className={errors.contact_phone ? 'error' : ''}
-                  required
-                  placeholder="+7 (___) ___-__-__"
-                />
-                {errors.contact_phone && <span className="error-text">{errors.contact_phone}</span>}
-              </div>
 
               <div className="form-group">
                 <FileUpload
@@ -351,8 +242,9 @@ export const OrderForm = ({ id }) => {
           ) : (
             <div className="form-success">
               <FontAwesomeIcon icon={['fas', 'check-circle']} style={{ fontSize: '5rem', color: '#00d4aa' }} />
-              <h3>Заявка отправлена!</h3>
-              <p>Мы свяжемся с вами в ближайшее время</p>
+              <h3>Подтвердите заявку в профиле</h3>
+              <p>И мы свяжемся с вами в ближайшее время</p>
+              <br />
               <Button
                 variant="secondary"
                 size="md"

@@ -109,6 +109,12 @@
   gap: 0.5rem;
 }
 
+.draft-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .status-select {
   padding: 0.5rem;
   border: 1px solid var(--border);
@@ -117,6 +123,22 @@
   color: var(--text-primary);
   font-size: 0.9rem;
   min-width: 150px;
+}
+
+.submit-draft-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+  background: var(--primary);
+  color: white;
+  font-size: 0.9rem;
+}
+
+.submit-draft-btn:hover {
+  background: var(--primary-dark);
 }
 
 .status-select:focus {

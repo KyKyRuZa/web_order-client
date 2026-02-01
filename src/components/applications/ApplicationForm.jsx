@@ -17,10 +17,6 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
     title: '',
     description: '',
     service_type: '',
-    contact_full_name: user?.full_name || '',
-    contact_email: user?.email || '',
-    contact_phone: user?.phone || '',
-    company_name: user?.company_name || '',
     expected_budget: null
   });
 
@@ -49,26 +45,11 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Очистка ошибки при изменении поля
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-  };
-
-  const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 0 && value[0] !== '7') {
-      value = '7' + value;
-    }
-    let formatted = '';
-    if (value.length > 0) formatted = '+' + value.substring(0, 1);
-    if (value.length > 1) formatted += ' (' + value.substring(1, 4);
-    if (value.length > 4) formatted += ') ' + value.substring(4, 7);
-    if (value.length > 7) formatted += '-' + value.substring(7, 9);
-    if (value.length > 9) formatted += '-' + value.substring(9, 11);
-
-    setFormData(prev => ({ ...prev, contact_phone: formatted }));
   };
 
   const handleSubmit = async (e) => {
@@ -79,8 +60,6 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
     if (!formData.title.trim()) newErrors.title = 'Название обязательно';
     if (formData.title.length < 5) newErrors.title = 'Название должно быть не менее 5 символов';
     if (!formData.service_type) newErrors.service_type = 'Тип услуги обязателен';
-    if (!formData.contact_email.trim()) newErrors.contact_email = 'Email обязателен';
-    if (!formData.contact_phone.trim()) newErrors.contact_phone = 'Телефон обязателен';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -95,11 +74,14 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
 
     try {
       // Подготовка данных для отправки - телефон преобразуем в формат без форматирования
-      const phoneForServer = extractPhoneForServer(formData.contact_phone);
+      const phoneForServer = extractPhoneForServer(user?.phone || '');
 
       const applicationData = {
         ...formData,
-        contact_phone: phoneForServer
+        contact_full_name: user?.full_name || '',
+        contact_email: user?.email || '',
+        contact_phone: phoneForServer,
+        company_name: user?.company_name || ''
       };
 
       const result = await createApplication(applicationData);
@@ -189,47 +171,6 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
             </div>
           </div>
           
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="contact_email">Email *</label>
-              <input
-                type="email"
-                id="contact_email"
-                name="contact_email"
-                value={formData.contact_email}
-                onChange={handleChange}
-                className={errors.contact_email ? 'error' : ''}
-                placeholder="email@example.com"
-              />
-              {errors.contact_email && <span className="error-text">{errors.contact_email}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="contact_phone">Телефон *</label>
-              <input
-                type="tel"
-                id="contact_phone"
-                name="contact_phone"
-                value={formData.contact_phone}
-                onChange={handlePhoneChange}
-                className={errors.contact_phone ? 'error' : ''}
-                placeholder="+7 (___) ___-__-__"
-              />
-              {errors.contact_phone && <span className="error-text">{errors.contact_phone}</span>}
-            </div>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="company_name">Название компании</label>
-            <input
-              type="text"
-              id="company_name"
-              name="company_name"
-              value={formData.company_name}
-              onChange={handleChange}
-              placeholder="Название вашей компании"
-            />
-          </div>
 
           {createdApplication && (
             <div className="file-upload-section">

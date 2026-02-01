@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApplications } from '../../context/ApplicationsContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { applicationsAPI } from '../../api';
 import { EditApplicationForm } from './EditApplicationForm';
 import { ApplicationDetailsModal } from '../admin/ApplicationDetailsModal';
 import { Header } from '../layout/Header';
@@ -119,6 +120,28 @@ export const ApplicationsList = () => {
                 </div>
 
                 <div className="application-actions">
+                  {application.status === 'draft' && user.id === application.user_id && (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const response = await applicationsAPI.submit(application.id);
+                          if (response.success) {
+                            showToast('Заявка успешно отправлена', 'success');
+                            fetchApplications(); // Обновить список заявок
+                          } else {
+                            showToast(response.message || 'Ошибка отправки заявки', 'error');
+                          }
+                        } catch (error) {
+                          console.error('Submit application error:', error);
+                          showToast(error.response?.data?.message || 'Ошибка отправки заявки', 'error');
+                        }
+                      }}
+                    >
+                      Отправить
+                    </Button>
+                  )}
                   <Button
                     variant="secondary"
                     size="sm"
