@@ -237,6 +237,26 @@
   font-size: 0.8rem;
 }
 
+.remove-btn {
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background 0.2s;
+  margin-left: 0.5rem;
+}
+
+.remove-btn:hover {
+  background: #ff5252;
+}
+
 .status-history ul {
   list-style: none;
   padding: 0;

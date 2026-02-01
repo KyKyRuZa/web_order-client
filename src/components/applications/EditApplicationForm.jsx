@@ -50,6 +50,13 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
     }
   }, [application]);
 
+  // Обновляем файлы при изменении application.files
+  useEffect(() => {
+    if (application && application.files) {
+      setUploadedFiles(application.files);
+    }
+  }, [application?.files]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -145,37 +152,17 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
       const result = await updateApplication(application.id, applicationData);
 
       if (result.success) {
-        // Если есть новые файлы для загрузки, загружаем их после обновления заявки
-        if (uploadedFiles.some(file => !file.id)) { // Проверяем, есть ли новые файлы (без ID)
-          const newFiles = uploadedFiles.filter(file => !file.id);
-          showToast(`Обновление заявки выполнено, загружаем ${newFiles.length} файл(ов)...`, 'info');
-
-          // Upload each new file to the updated application
-          for (const fileObj of newFiles) {
-            const fileData = {
-              file: fileObj.file,
-              category: 'other',
-              description: fileObj.name
-            };
-
-            try {
-              const uploadResult = await applicationsAPI.uploadFile(application.id, fileData);
-              if (uploadResult.success) {
-                showToast(`Файл ${fileObj.name} успешно загружен`, 'success');
-              } else {
-                showToast(`Ошибка загрузки файла ${fileObj.name}: ${uploadResult.message}`, 'error');
-              }
-            } catch (fileError) {
-              console.error(`Ошибка загрузки файла ${fileObj.name}:`, fileError);
-              showToast(`Ошибка загрузки файла ${fileObj.name}`, 'error');
-            }
-          }
-        }
-
+        // Show success message - application has been updated
         showToast('Заявка успешно обновлена', 'success');
+
         onSave(result.application);
       } else {
-        showToast(result.message || 'Ошибка обновления заявки', 'error');
+        // Check if the error is due to application not found (404)
+        if (result.message && result.message.includes('не найдена')) {
+          showToast('Заявка не найдена или была удалена', 'error');
+        } else {
+          showToast(result.message || 'Ошибка обновления заявки', 'error');
+        }
       }
     } catch (error) {
       console.error('Update application error:', error);
@@ -187,6 +174,38 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
   const handleClose = () => {
     onClose();
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Б';
+    const k = 1024;
+    const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  };
+
+  const handleDeleteFile = async (fileId) => {
+    try {
+      const response = await applicationsAPI.deleteFile(fileId);
+
+      if (response.success) {
+        // Update the application state to remove the deleted file
+        setUploadedFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
+
+        // Also update the application prop to reflect the change
+        const updatedApplication = {
+          ...application,
+          files: application.files.filter(file => file.id !== fileId)
+        };
+
+        showToast('Файл успешно удален', 'success');
+      } else {
+        throw new Error(response.message || 'Ошибка удаления файла');
+      }
+    } catch (error) {
+      console.error('File deletion error:', error);
+      showToast(`Ошибка удаления файла: ${error.message || error}`, 'error');
+    }
   };
 
   return (
@@ -319,9 +338,30 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
           <div className="file-upload-section">
             <h3>Файлы заявки</h3>
+
+            {application.files && Array.isArray(application.files) && application.files.length > 0 && (
+              <div className="existing-files-list">
+                <h4>Существующие файлы:</h4>
+                <ul className="files-list">
+                  {application.files.filter(file => file && file.id).map(file => (
+                    <li key={file.id} className="file-item">
+                      <div className="file-info">
+                        <a href={file.url || `#`} target="_blank" rel="noopener noreferrer">
+                          <FontAwesomeIcon icon="file" /> {file.original_name || file.filename || 'Файл'}
+                        </a>
+                        <span className="file-size">({formatFileSize(file.size)})</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <FileUpload
               onFilesSelected={setUploadedFiles}
               maxFiles={5}
+              applicationId={application.id}
+              initialFiles={application.files || []}
             />
           </div>
 

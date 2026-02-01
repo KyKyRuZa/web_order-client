@@ -74,12 +74,17 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
           statusDisplay: getStatusDisplay(newStatus)
         }));
         showToast('Статус заявки успешно изменен', 'success');
+        // Вызываем onUpdate для обновления списка заявок
+        if (onUpdate) {
+          onUpdate();
+        }
       } else {
         showToast(response.message || 'Ошибка изменения статуса', 'error');
       }
     } catch (error) {
       console.error('Update status error:', error);
-      showToast(error.response?.data?.message || 'Ошибка изменения статуса', 'error');
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Ошибка изменения статуса';
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -141,6 +146,34 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const handleDeleteFile = async (fileId) => {
+    try {
+      // Определяем, какой API использовать в зависимости от роли пользователя
+      const api = (user && (user.role === 'admin' || user.role === 'manager')) ? adminAPI : applicationsAPI;
+      const response = await api.deleteFile(fileId);
+
+      if (response.success) {
+        // Обновляем локальное состояние, удалив файл из списка
+        setApplication(prevApp => ({
+          ...prevApp,
+          files: prevApp.files.filter(file => file.id !== fileId)
+        }));
+
+        showToast('Файл успешно удален', 'success');
+
+        // Обновляем список заявок, если был передан onUpdate
+        if (onUpdate) {
+          onUpdate();
+        }
+      } else {
+        throw new Error(response.message || 'Ошибка удаления файла');
+      }
+    } catch (error) {
+      console.error('File deletion error:', error);
+      showToast(`Ошибка удаления файла: ${error.message || error}`, 'error');
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -189,8 +222,6 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                       <option value="draft">Черновик</option>
                       <option value="submitted">Отправлено</option>
                       <option value="in_review">На рассмотрении</option>
-                      <option value="needs_info">Требуется информация</option>
-                      <option value="estimated">Оценено</option>
                       <option value="approved">Утверждено</option>
                       <option value="in_progress">В работе</option>
                       <option value="completed">Завершено</option>
@@ -294,10 +325,23 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                     <ul>
                       {application.files.map(file => (
                         <li key={file.id} className="file-item">
-                          <a href={file.url} target="_blank" rel="noopener noreferrer">
-                            <FontAwesomeIcon icon="file" /> {file.original_name || file.filename || 'Файл'}
-                          </a>
-                          <span className="file-size">({formatFileSize(file.size)})</span>
+                          <div className="file-info">
+                            <a href={file.url} target="_blank" rel="noopener noreferrer">
+                              <FontAwesomeIcon icon="file" /> {file.original_name || file.filename || 'Файл'}
+                            </a>
+                            <span className="file-size">({formatFileSize(file.size)})</span>
+                          </div>
+                          {(user && (user.role === 'admin' || user.role === 'manager' || (user.role === 'client' && application.user_id === user.id))) && (
+                            <button
+                              type="button"
+                              className="remove-btn"
+                              onClick={() => handleDeleteFile(file.id)}
+                              title="Удалить файл"
+                            >
+                            <FontAwesomeIcon icon="trash" />
+
+                            </button>
+                          )}
                         </li>
                       ))}
                     </ul>

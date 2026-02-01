@@ -1,0 +1,50 @@
+/* ВАЖНО: Cy Grotesk Grand НЕТ на Google Fonts!
+   Сначала получите веб-шрифт (например, с MyFonts или Fontspring)
+   и загрузите файлы на ваш сервер */
+
+/* Подключение шрифта через @font-face (пример) */
+@font-face {
+  font-family: 'Cy Grotesk Grand';
+  src: url('../assets/cy-grotesk-wide.woff2') format('woff2'),
+       url('../assets/cy-grotesk-wide.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Ваш существующий CSS */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.logo-image {
+  height: 2.5rem;
+  width: auto;
+  max-width: 100%;
+}
+
+.logo-text {
+  font-family: 'Cy Grotesk Grand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: bold; /* или 700 */
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .logo {
+    gap: 0.25rem;
+  }
+  
+  .logo-image {
+    height: 1.5rem;
+  }
+  
+  .logo-text {
+    font-size: 1rem;
+  }
+}

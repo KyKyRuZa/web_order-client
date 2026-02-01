@@ -115,3 +115,21 @@ input[type="file"] {
 .remove-btn:hover {
   background: #ff5252;
 }
+
+.file-item.existing-file {
+  border-left: 3px solid var(--accent);
+  opacity: 0.9;
+}
+
+.file-item.new-file {
+  border-left: 3px solid #28a745;
+}
+
+.file-status {
+  font-size: 0.7em;
+  color: var(--text-secondary);
+  margin-left: 0.5rem;
+  background: rgba(0, 212, 170, 0.2);
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+}

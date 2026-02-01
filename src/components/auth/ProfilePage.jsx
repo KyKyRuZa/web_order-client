@@ -3,8 +3,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Header } from '../layout/Header';
 import { PasswordInput } from '../utils/PasswordInput';
-import { authAPI } from '../../api';
+import { authAPI, notificationsAPI } from '../../api';
 import { ApplicationsList } from '../applications/ApplicationsList';
+import { NotificationsList } from '../notifications/NotificationsList';
 import { ConfirmationModal } from '../utils/Modal';
 import { Button } from '../utils/Button';
 import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
@@ -478,10 +479,7 @@ export const ProfilePage = () => {
 
                 {activeTab === 'notifications' && (
                   <div className="tab-pane">
-                    <div className="notifications-settings">
-                      <h3>Настройки уведомлений</h3>
-                      <p>Функционал настройки уведомлений в разработке</p>
-                    </div>
+                    <NotificationsList />
                   </div>
                 )}
 

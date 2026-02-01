@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
+import { applicationsAPI } from '../../api';
 import '../../styles/FileUpload.css';
 
 export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initialFiles = [] }) => {
@@ -9,6 +10,16 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initi
     name: file.original_name || file.filename || file.name,
     isExisting: true // Помечаем, что файл уже существует на сервере
   })));
+
+  // Обновляем файлы при изменении initialFiles (например, при загрузке данных при редактировании)
+  useEffect(() => {
+    setFiles(initialFiles.map(file => ({
+      ...file,
+      id: file.id || file.fileId || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: file.original_name || file.filename || file.name,
+      isExisting: true // Помечаем, что файл уже существует на сервере
+    })));
+  }, [initialFiles]);
 
   // Helper function to generate unique IDs
   const generateId = () => {
@@ -48,20 +59,21 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initi
     if (applicationId) {
       for (const fileObj of newFiles) {
         try {
-          const formData = new FormData();
-          formData.append('file', fileObj.file);
-
-          // Using the applicationsAPI to upload files to an application
-          const { applicationsAPI } = require('../../api'); // Import here to avoid circular dependencies
           const response = await applicationsAPI.uploadFile(applicationId, {
-            file: fileObj.file
+            file: fileObj.file,
+            description: fileObj.name
           });
 
           if (response.success) {
-            // Update the file object with server response
+            // Update the file object with server response, ensuring the server ID is preserved
             setFiles(prevFiles =>
               prevFiles.map(f =>
-                f.id === fileObj.id ? { ...f, ...response.data.file, isExisting: true } : f
+                f.id === fileObj.id ? {
+                  ...f,
+                  ...response.data.file,
+                  id: response.data.file.id, // Use the server-generated ID
+                  isExisting: true
+                } : f
               )
             );
 
@@ -94,9 +106,6 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initi
     if (fileToRemove.isExisting && applicationId) {
       // If it's an existing file and we have applicationId, try to delete from server
       try {
-        // Assuming we have an API for deleting files
-        const { applicationsAPI } = require('../../api'); // Import here to avoid circular dependencies
-
         // We need the actual file ID from the server to delete it
         // The fileToRemove should have an id property that corresponds to the server file ID
         if (fileToRemove.id) {
@@ -106,21 +115,36 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initi
             const updatedFiles = files.filter((_, index) => index !== indexToRemove);
             setFiles(updatedFiles);
             onFilesSelected && onFilesSelected(updatedFiles);
-            showToast('Файл удален', 'info');
+            showToast(`Файл ${fileToRemove.name || 'Файл'} удален`, 'info');
           } else {
             throw new Error(response.message || 'Ошибка удаления файла');
           }
+        } else {
+          // If no server ID, just remove from local state
+          const updatedFiles = files.filter((_, index) => index !== indexToRemove);
+          setFiles(updatedFiles);
+          onFilesSelected && onFilesSelected(updatedFiles);
+          showToast(`Файл ${fileToRemove.name || 'Файл'} удален`, 'info');
         }
       } catch (error) {
         console.error('File deletion error:', error);
-        showToast(`Ошибка удаления файла: ${error.message}`, 'error');
+        // Show more specific error message
+        if (error.response?.status === 404) {
+          showToast(`Файл не найден на сервере, удален локально`, 'warning');
+          // Still remove from local state if file doesn't exist on server
+          const updatedFiles = files.filter((_, index) => index !== indexToRemove);
+          setFiles(updatedFiles);
+          onFilesSelected && onFilesSelected(updatedFiles);
+        } else {
+          showToast(`Ошибка удаления файла: ${error.message || error}`, 'error');
+        }
       }
     } else {
       // Just remove from local state
       const updatedFiles = files.filter((_, index) => index !== indexToRemove);
       setFiles(updatedFiles);
       onFilesSelected && onFilesSelected(updatedFiles);
-      showToast('Файл удален', 'info');
+      showToast(`Файл ${fileToRemove.name || 'Файл'} удален`, 'info');
     }
   };
 
@@ -152,10 +176,11 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initi
           <h4>Выбранные файлы ({files.length}/{maxFiles})</h4>
           <ul>
             {files.map((fileObj) => (
-              <li key={fileObj.id} className="file-item">
+              <li key={fileObj.id} className={`file-item ${fileObj.isExisting ? 'existing-file' : 'new-file'}`}>
                 <div className="file-info">
                   <span className="file-name">{fileObj.original_name || fileObj.name || 'Файл'}</span>
                   <span className="file-size">({formatFileSize(fileObj.size)})</span>
+                  {fileObj.isExisting && <span className="file-status">(загружен)</span>}
                 </div>
                 <button
                   className="remove-btn"
@@ -164,6 +189,7 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initi
                     removeFile(index);
                   }}
                   type="button"
+                  title="Удалить файл"
                 >
                   ×
                 </button>

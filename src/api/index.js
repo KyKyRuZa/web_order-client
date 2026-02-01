@@ -5,3 +5,4 @@ export { applicationsAPI } from './applicationsAPI';
 export { adminAPI } from './adminAPI';
 export { notesAPI } from './notesAPI';
 export { auditAPI } from './auditAPI';
+export { notificationsAPI } from './notificationsAPI';

@@ -116,6 +116,34 @@ export const AdminPanel = () => {
     setIsModalOpen(true);
   };
 
+  const handleChangeUserRole = async (userId, newRole) => {
+    if (!isAdmin) {
+      showToast('У вас нет прав для изменения ролей пользователей', 'error');
+      return;
+    }
+
+    try {
+      const response = await adminAPI.updateUserRole(userId, { role: newRole });
+
+      if (response.success) {
+        // Обновляем роль в локальном состоянии
+        setUsers(prevUsers =>
+          prevUsers.map(user =>
+            user.id === userId
+              ? { ...user, role: newRole }
+              : user
+          )
+        );
+        showToast('Роль пользователя успешно изменена', 'success');
+      } else {
+        showToast(response.message || 'Ошибка изменения роли пользователя', 'error');
+      }
+    } catch (error) {
+      console.error('Update user role error:', error);
+      showToast(error.response?.data?.message || 'Ошибка изменения роли пользователя', 'error');
+    }
+  };
+
   const getStatusDisplay = (status) => {
     const statusMap = {
       'draft': 'Черновик',
@@ -413,10 +441,16 @@ export const AdminPanel = () => {
                           <td>{userItem.full_name}</td>
                           <td>{userItem.email}</td>
                           <td>
-                            <span className={`role-badge role-${userItem.role}`}>
-                              {userItem.role === 'admin' ? 'Админ' : 
-                               userItem.role === 'manager' ? 'Менеджер' : 'Клиент'}
-                            </span>
+                            <select
+                              value={userItem.role}
+                              onChange={(e) => handleChangeUserRole(userItem.id, e.target.value)}
+                              className="role-select"
+                              disabled={!isAdmin}
+                            >
+                              <option value="client">Клиент</option>
+                              <option value="manager">Менеджер</option>
+                              <option value="admin">Админ</option>
+                            </select>
                           </td>
                           <td>{new Date(userItem.created_at).toLocaleDateString()}</td>
                           <td>
@@ -425,7 +459,12 @@ export const AdminPanel = () => {
                             </span>
                           </td>
                           <td>
-                            <button className="action-btn edit-btn">
+                            <button
+                              className="action-btn edit-btn"
+                              onClick={() => handleChangeUserRole(userItem.id, userItem.role)}
+                              disabled={!isAdmin}
+                              title="Изменить роль пользователя"
+                            >
                               <FontAwesomeIcon icon="edit" />
                             </button>
                           </td>

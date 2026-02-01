@@ -6,22 +6,22 @@ export const Contact = ({ id }) => {
     {
       icon: 'phone',
       title: 'Телефон',
-      value: '+7 (495) 123-45-67'
+      value: '+7 (987) 207-02-06'
     },
     {
       icon: 'envelope',
       title: 'Email',
-      value: 'hello@relatelab.ru'
+      value: 'support@relatelab.ru'
     },
     {
       icon: 'map-marker-alt',
       title: 'Офис',
-      value: 'Москва, Пресненская наб. 12'
+      value: 'Казань, Большая Красная улица, 42'
     },
     {
       icon: 'clock',
       title: 'Режим работы',
-      value: 'Пн-Пт: 9:00 - 19:00'
+      value: 'Пн-Пт: 9:00 - 21:00'  
     }
   ];
 
