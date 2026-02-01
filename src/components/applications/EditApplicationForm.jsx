@@ -62,9 +62,17 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 0 && value[0] !== '7') {
+
+    // Если номер начинается с 8, заменяем на 7
+    if (value.length > 0 && value[0] === '8') {
+      value = '7' + value.substring(1);
+    }
+    // Если номер 10 цифр, добавляем 7 в начало
+    else if (value.length === 10) {
       value = '7' + value;
     }
+
+    // Форматируем в формат +7 (XXX) XXX-XX-XX
     let formatted = '';
     if (value.length > 0) formatted = '+' + value.substring(0, 1);
     if (value.length > 1) formatted += ' (' + value.substring(1, 4);

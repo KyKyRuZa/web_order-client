@@ -26,10 +26,20 @@ export const ProfilePage = () => {
   useEffect(() => {
     if (user && !isEditing) {
       const timer = setTimeout(() => {
+        // Форматируем телефон для отображения в нужном формате
+        let formattedPhone = user.phone || '';
+        if (user.phone) {
+          let cleanPhone = user.phone.replace(/\D/g, '');
+          if (cleanPhone.length >= 11) {
+            // Форматируем как +7 (XXX) XXX-XX-XX
+            formattedPhone = `+7 (${cleanPhone.slice(1, 4)}) ${cleanPhone.slice(4, 7)}-${cleanPhone.slice(7, 9)}-${cleanPhone.slice(9, 11)}`;
+          }
+        }
+
         setFormData({
           fullName: user.full_name || '',
           email: user.email || '',
-          phone: user.phone || '',
+          phone: formattedPhone,
           companyName: user.company_name || ''
         });
       });
@@ -49,9 +59,17 @@ export const ProfilePage = () => {
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 0 && value[0] !== '7') {
+
+    // Если номер начинается с 8, заменяем на 7
+    if (value.length > 0 && value[0] === '8') {
+      value = '7' + value.substring(1);
+    }
+    // Если номер меньше 11 цифр, добавляем 7 в начало
+    else if (value.length === 10) {
       value = '7' + value;
     }
+
+    // Форматируем в формат +7 (XXX) XXX-XX-XX
     let formatted = '';
     if (value.length > 0) formatted = '+' + value.substring(0, 1);
     if (value.length > 1) formatted += ' (' + value.substring(1, 4);
@@ -69,12 +87,21 @@ export const ProfilePage = () => {
       // Очищаем номер телефона от лишних символов, оставляем только цифры
       let cleanPhone = formData.phone ? formData.phone.replace(/\D/g, '') : '';
 
-      // Если номер начинается с 7, добавляем + в начало для международного формата
-      if (cleanPhone && cleanPhone[0] === '7') {
-        cleanPhone = '+' + cleanPhone;
-      } else if (cleanPhone && cleanPhone[0] !== '+') {
-        // Если номер не начинается с + и не с 7, добавляем +
-        cleanPhone = '+' + cleanPhone;
+      // Убедимся, что номер в нужном формате для сервера (7XXXXXXXXXX)
+      if (cleanPhone) {
+        if (cleanPhone.length === 11 && cleanPhone[0] === '8') {
+          // Если начинается с 8, меняем на 7
+          cleanPhone = '7' + cleanPhone.substring(1);
+        } else if (cleanPhone.length === 10) {
+          // Если 10 цифр, добавляем 7 в начало
+          cleanPhone = '7' + cleanPhone;
+        } else if (cleanPhone.length === 11 && cleanPhone[0] === '7') {
+          // Если уже начинается с 7, оставляем как есть
+          cleanPhone = cleanPhone;
+        } else if (cleanPhone.length === 12 && cleanPhone.startsWith('+7')) {
+          // Если начинается с +7, убираем +
+          cleanPhone = cleanPhone.substring(1);
+        }
       }
 
       const profileData = {
@@ -196,7 +223,18 @@ export const ProfilePage = () => {
 
                   <div className="detail-item">
                     <span className="label">Телефон:</span>
-                    <span className="value">{user.phone || 'Не указан'}</span>
+                    <span className="value">
+                      {user.phone ?
+                        (() => {
+                          let cleanPhone = user.phone.replace(/\D/g, '');
+                          if (cleanPhone.length >= 11) {
+                            // Форматируем как +7 (XXX) XXX-XX-XX
+                            return `+7 (${cleanPhone.slice(1, 4)}) ${cleanPhone.slice(4, 7)}-${cleanPhone.slice(7, 9)}-${cleanPhone.slice(9, 11)}`;
+                          }
+                          return user.phone; // Возвращаем как есть, если формат нестандартный
+                        })()
+                        : 'Не указан'}
+                    </span>
                   </div>
 
                   <div className="detail-item">

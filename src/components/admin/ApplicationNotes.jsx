@@ -19,10 +19,7 @@ export const ApplicationNotes = ({ applicationId }) => {
   const noteTypes = user.role === 'client' ? [
     { value: 'comment', label: 'Комментарий' }
   ] : [
-    { value: 'comment', label: 'Комментарий' },
-    { value: 'internal', label: 'Внутренняя заметка' },
-    { value: 'system', label: 'Системная заметка' },
-    { value: 'change_log', label: 'Изменение статуса' }
+    { value: 'comment', label: 'Комментарий' }
   ];
 
   const [selectedNoteType, setSelectedNoteType] = useState(user.role === 'client' ? 'comment' : 'comment');

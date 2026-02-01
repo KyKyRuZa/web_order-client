@@ -133,6 +133,14 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
     onClose();
   };
 
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Б';
+    const k = 1024;
+    const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -194,32 +202,6 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                       <span className={`status-badge status-${application.status}`}>
                         {application.statusDisplay}
                       </span>
-                      <button
-                        className="btn btn-primary submit-draft-btn"
-                        onClick={async () => {
-                          try {
-                            const response = await applicationsAPI.submit(application.id);
-                            if (response.success) {
-                              setApplication(prevApp => ({
-                                ...prevApp,
-                                status: 'submitted',
-                                statusDisplay: 'Отправлено'
-                              }));
-                              showToast('Заявка успешно отправлена', 'success');
-                              if (onUpdate) {
-                                onUpdate();
-                              }
-                            } else {
-                              showToast(response.message || 'Ошибка отправки заявки', 'error');
-                            }
-                          } catch (error) {
-                            console.error('Submit application error:', error);
-                            showToast(error.response?.data?.message || 'Ошибка отправки заявки', 'error');
-                          }
-                        }}
-                      >
-                        Отправить
-                      </button>
                     </div>
                   ) : (
                     <span className={`status-badge status-${application.status}`}>
@@ -250,7 +232,18 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
 
               <div className="detail-item">
                 <label>Телефон клиента:</label>
-                <span>{application.contact_phone}</span>
+                <span>
+                  {application.contact_phone ?
+                    (() => {
+                      let cleanPhone = application.contact_phone.replace(/\D/g, '');
+                      if (cleanPhone.length >= 11) {
+                        // Форматируем как +7 (XXX) XXX-XX-XX
+                        return `+7 (${cleanPhone.slice(1, 4)}) ${cleanPhone.slice(4, 7)}-${cleanPhone.slice(7, 9)}-${cleanPhone.slice(9, 11)}`;
+                      }
+                      return application.contact_phone; // Возвращаем как есть, если формат нестандартный
+                    })()
+                    : 'Не указан'}
+                </span>
               </div>
 
               {!(user && user.role === 'client') && (
@@ -302,9 +295,9 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                       {application.files.map(file => (
                         <li key={file.id} className="file-item">
                           <a href={file.url} target="_blank" rel="noopener noreferrer">
-                            <FontAwesomeIcon icon="file" /> {file.filename}
+                            <FontAwesomeIcon icon="file" /> {file.original_name || file.filename || 'Файл'}
                           </a>
-                          <span className="file-size">({file.size})</span>
+                          <span className="file-size">({formatFileSize(file.size)})</span>
                         </li>
                       ))}
                     </ul>

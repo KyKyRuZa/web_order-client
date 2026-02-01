@@ -16,7 +16,8 @@ export const OrderForm = ({ id }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    service_type: ''
+    service_type: '',
+    expected_budget: null
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -85,6 +86,7 @@ export const OrderForm = ({ id }) => {
         title: formData.title,
         description: formData.description,
         service_type: formData.service_type,
+        expected_budget: formData.expected_budget,
         contact_full_name: user?.full_name || '',
         contact_email: user?.email || '',
         contact_phone: extractPhoneForServer(user?.phone || ''),
@@ -125,7 +127,8 @@ export const OrderForm = ({ id }) => {
         setFormData({
           title: '',
           description: '',
-          service_type: ''
+          service_type: '',
+          expected_budget: null
         });
         setUploadedFiles([]); // Clear uploaded files
       } else {
@@ -218,6 +221,17 @@ export const OrderForm = ({ id }) => {
                   {errors.service_type && <span className="error-text">{errors.service_type}</span>}
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="expected_budget">Ожидаемый бюджет (₽)</label>
+                  <input
+                    type="number"
+                    id="expected_budget"
+                    name="expected_budget"
+                    value={formData.expected_budget || ''}
+                    onChange={(e) => setFormData({...formData, expected_budget: e.target.value ? Number(e.target.value) : null})}
+                    placeholder="Введите сумму бюджета"
+                  />
+                </div>
               </div>
 
 

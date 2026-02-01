@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { useToast } from '../../context/ToastContext';
 import '../../styles/FileUpload.css';
 
-export const FileUpload = ({ onFilesSelected, maxFiles = 5 }) => {
-  const [files, setFiles] = useState([]);
+export const FileUpload = ({ onFilesSelected, maxFiles = 5, applicationId, initialFiles = [] }) => {
+  const [files, setFiles] = useState(initialFiles.map(file => ({
+    ...file,
+    id: file.id || file.fileId || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    name: file.original_name || file.filename || file.name,
+    isExisting: true // Помечаем, что файл уже существует на сервере
+  })));
 
   // Helper function to generate unique IDs
   const generateId = () => {
@@ -11,9 +16,9 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5 }) => {
   };
   const { showToast } = useToast();
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const selectedFiles = Array.from(e.target.files);
-    
+
     if (selectedFiles.length === 0) return;
 
     // Check if adding these files exceeds the max count
@@ -28,37 +33,103 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5 }) => {
       file: file,
       name: file.name,
       size: file.size,
-      type: file.type
+      type: file.type,
+      isExisting: false // Новый файл, еще не загружен на сервер
     }));
 
     // Add new files to the existing files
     const updatedFiles = [...files, ...newFiles];
     setFiles(updatedFiles);
-    
+
     // Notify parent component about the new files
     onFilesSelected && onFilesSelected(updatedFiles);
-    
-    // Show success message
-    if (selectedFiles.length === 1) {
-      showToast(`Файл ${selectedFiles[0].name} добавлен`, 'success');
+
+    // If applicationId is provided, upload files to server
+    if (applicationId) {
+      for (const fileObj of newFiles) {
+        try {
+          const formData = new FormData();
+          formData.append('file', fileObj.file);
+
+          // Using the applicationsAPI to upload files to an application
+          const { applicationsAPI } = require('../../api'); // Import here to avoid circular dependencies
+          const response = await applicationsAPI.uploadFile(applicationId, {
+            file: fileObj.file
+          });
+
+          if (response.success) {
+            // Update the file object with server response
+            setFiles(prevFiles =>
+              prevFiles.map(f =>
+                f.id === fileObj.id ? { ...f, ...response.data.file, isExisting: true } : f
+              )
+            );
+
+            showToast(`Файл ${fileObj.name} успешно загружен`, 'success');
+          } else {
+            throw new Error(response.message || 'Ошибка загрузки файла');
+          }
+        } catch (error) {
+          console.error('File upload error:', error);
+
+          // Remove the failed file from the list
+          setFiles(prevFiles => prevFiles.filter(f => f.id !== fileObj.id));
+
+          showToast(`Ошибка загрузки файла ${fileObj.name}: ${error.message}`, 'error');
+        }
+      }
     } else {
-      showToast(`${selectedFiles.length} файла(ов) добавлено`, 'success');
+      // Show success message for local addition only
+      if (selectedFiles.length === 1) {
+        showToast(`Файл ${selectedFiles[0].name} добавлен`, 'success');
+      } else {
+        showToast(`${selectedFiles.length} файла(ов) добавлено`, 'success');
+      }
     }
   };
 
-  const removeFile = (indexToRemove) => {
-    const updatedFiles = files.filter((_, index) => index !== indexToRemove);
-    setFiles(updatedFiles);
-    onFilesSelected && onFilesSelected(updatedFiles);
-    showToast('Файл удален', 'info');
+  const removeFile = async (indexToRemove) => {
+    const fileToRemove = files[indexToRemove];
+
+    if (fileToRemove.isExisting && applicationId) {
+      // If it's an existing file and we have applicationId, try to delete from server
+      try {
+        // Assuming we have an API for deleting files
+        const { applicationsAPI } = require('../../api'); // Import here to avoid circular dependencies
+
+        // We need the actual file ID from the server to delete it
+        // The fileToRemove should have an id property that corresponds to the server file ID
+        if (fileToRemove.id) {
+          const response = await applicationsAPI.deleteFile(fileToRemove.id);
+
+          if (response.success) {
+            const updatedFiles = files.filter((_, index) => index !== indexToRemove);
+            setFiles(updatedFiles);
+            onFilesSelected && onFilesSelected(updatedFiles);
+            showToast('Файл удален', 'info');
+          } else {
+            throw new Error(response.message || 'Ошибка удаления файла');
+          }
+        }
+      } catch (error) {
+        console.error('File deletion error:', error);
+        showToast(`Ошибка удаления файла: ${error.message}`, 'error');
+      }
+    } else {
+      // Just remove from local state
+      const updatedFiles = files.filter((_, index) => index !== indexToRemove);
+      setFiles(updatedFiles);
+      onFilesSelected && onFilesSelected(updatedFiles);
+      showToast('Файл удален', 'info');
+    }
   };
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return '0 Б';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   return (
@@ -83,7 +154,7 @@ export const FileUpload = ({ onFilesSelected, maxFiles = 5 }) => {
             {files.map((fileObj) => (
               <li key={fileObj.id} className="file-item">
                 <div className="file-info">
-                  <span className="file-name">{fileObj.name}</span>
+                  <span className="file-name">{fileObj.original_name || fileObj.name || 'Файл'}</span>
                   <span className="file-size">({formatFileSize(fileObj.size)})</span>
                 </div>
                 <button
