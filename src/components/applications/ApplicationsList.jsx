@@ -86,15 +86,13 @@ export const ApplicationsList = () => {
                     <span className="value">{application.serviceTypeDisplay || application.service_type}</span>
                   </div>
 
-                  <div className="detail-item">
-                    <span className="label">Дата создания:</span>
-                    <span className="value">{new Date(application.created_at).toLocaleDateString()}</span>
-                  </div>
 
-                  <div className="detail-item">
-                    <span className="label">Контактное лицо:</span>
-                    <span className="value">{application.full_name}</span>
-                  </div>
+                  {!(user && user.role === 'client') && (
+                    <div className="detail-item">
+                      <span className="label">Приоритет:</span>
+                      <span className="value">{application.priorityDisplay}</span>
+                    </div>
+                  )}
 
                   <div className="detail-item">
                     <span className="label">Компания:</span>
@@ -105,6 +103,17 @@ export const ApplicationsList = () => {
                     <div className="detail-item">
                       <span className="label">Ожидаемый бюджет:</span>
                       <span className="value">{new Intl.NumberFormat('ru-RU').format(application.expected_budget)} ₽</span>
+                    </div>
+                  )}
+                  <div className="detail-item">
+                    <span className="label">Дата создания:</span>
+                    <span className="value">{new Date(application.created_at).toLocaleDateString()}</span>
+                  </div>
+
+                  {!(user && user.role === 'client') && (
+                    <div className="detail-item">
+                      <span className="label">Дата обновления:</span>
+                      <span className="value">{new Date(application.updated_at).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>

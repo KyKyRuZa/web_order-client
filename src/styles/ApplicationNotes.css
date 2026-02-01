@@ -130,6 +130,16 @@
   color: var(--text-primary);
 }
 
+.note-author-role {
+  background: var(--bg-medium);
+  color: var(--text-secondary);
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
 .note-type-badge {
   background: var(--bg-medium);
   color: var(--text-secondary);

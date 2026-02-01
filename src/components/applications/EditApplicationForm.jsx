@@ -90,10 +90,6 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
       newErrors.description = 'Опишите вашу заявку';
     }
 
-    if (!formData.contact_full_name.trim()) {
-      newErrors.contact_full_name = 'Укажите контактное лицо';
-    }
-
     if (!formData.contact_email.trim()) {
       newErrors.contact_email = 'Укажите email';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contact_email)) {
@@ -244,18 +240,6 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
           </div>
           
           <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="contact_full_name">Контактное лицо *</label>
-              <input
-                type="text"
-                id="contact_full_name"
-                name="contact_full_name"
-                value={formData.contact_full_name}
-                onChange={handleChange}
-                className={errors.contact_full_name ? 'error' : ''}
-              />
-              {errors.contact_full_name && <span className="error-message">{errors.contact_full_name}</span>}
-            </div>
             
             <div className="form-group">
               <label htmlFor="contact_email">Email *</label>
@@ -307,21 +291,22 @@ export const EditApplicationForm = ({ application, onClose, onSave }) => {
                 placeholder="Введите сумму бюджета"
               />
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="priority">Приоритет</label>
-              <select
-                id="priority"
-                name="priority"
-                value={formData.priority}
-                onChange={handleChange}
-              >
-                <option value="low">Низкий</option>
-                <option value="medium">Средний</option>
-                <option value="high">Высокий</option>
-                <option value="urgent">Срочный</option>
-              </select>
-            </div>
+            {!(user && user.role === 'client') && (
+              <div className="form-group">
+                <label htmlFor="priority">Приоритет</label>
+                <select
+                  id="priority"
+                  name="priority"
+                  value={formData.priority}
+                  onChange={handleChange}
+                >
+                  <option value="low">Низкий</option>
+                  <option value="medium">Средний</option>
+                  <option value="high">Высокий</option>
+                  <option value="urgent">Срочный</option>
+                </select>
+              </div>
+              )}
           </div>
 
           <div className="file-upload-section">

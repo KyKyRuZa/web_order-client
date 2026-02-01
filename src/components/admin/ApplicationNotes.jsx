@@ -16,14 +16,16 @@ export const ApplicationNotes = ({ applicationId }) => {
   const [expandedNoteId, setExpandedNoteId] = useState(null);
 
   // Типы заметок
-  const noteTypes = [
+  const noteTypes = user.role === 'client' ? [
+    { value: 'comment', label: 'Комментарий' }
+  ] : [
     { value: 'comment', label: 'Комментарий' },
     { value: 'internal', label: 'Внутренняя заметка' },
     { value: 'system', label: 'Системная заметка' },
     { value: 'change_log', label: 'Изменение статуса' }
   ];
 
-  const [selectedNoteType, setSelectedNoteType] = useState('comment');
+  const [selectedNoteType, setSelectedNoteType] = useState(user.role === 'client' ? 'comment' : 'comment');
 
   // Загрузка заметок
   useEffect(() => {
@@ -151,13 +153,32 @@ export const ApplicationNotes = ({ applicationId }) => {
 
   // Форматирование даты
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    try {
+      // Проверяем, является ли dateString валидной датой
+      if (!dateString) {
+        return 'Нет даты';
+      }
+
+      // Попробуем создать объект даты
+      const date = new Date(dateString);
+
+      // Проверим, является ли дата валидной
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date value:', dateString);
+        return 'Неверная дата';
+      }
+
+      return date.toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', dateString, error);
+      return 'Ошибка даты';
+    }
   };
 
   if (loading) {
@@ -235,12 +256,12 @@ export const ApplicationNotes = ({ applicationId }) => {
                       <FontAwesomeIcon icon="thumbtack" />
                     </span>
                   )}
-                  <span className="note-author">{note.author?.full_name || note.created_by}</span>
+                  <span className="note-author">{note.author?.fullName || 'Неизвестный автор'}</span>
                   <span className="note-type-badge">{noteTypes.find(t => t.value === note.note_type)?.label}</span>
                 </div>
                 
                 <div className="note-timestamp">
-                  {formatDate(note.created_at)}
+                  {formatDate(note.createdAt)}
                 </div>
               </div>
               
@@ -261,8 +282,9 @@ export const ApplicationNotes = ({ applicationId }) => {
                   <div 
                     className="note-display-content"
                     onClick={() => {
-                      // Разрешаем редактирование только менеджерам и администраторам
-                      if (user.role === 'manager' || user.role === 'admin' || user.role === 'super_admin') {
+                      // Разрешаем редактирование только менеджерам, администраторам и владельцам комментариев
+                      if (user.role === 'manager' || user.role === 'admin' || user.role === 'super_admin' ||
+                          (user.role === 'client' && note.author?.id === user.id && note.note_type === 'comment')) {
                         setExpandedNoteId(note.id);
                       }
                     }}
@@ -282,7 +304,7 @@ export const ApplicationNotes = ({ applicationId }) => {
                     >
                       <FontAwesomeIcon icon="thumbtack" rotation={note.is_pinned ? 90 : undefined} />
                     </button>
-                    
+
                     <button
                       className="action-btn"
                       onClick={() => setExpandedNoteId(note.id)}
@@ -290,7 +312,7 @@ export const ApplicationNotes = ({ applicationId }) => {
                     >
                       <FontAwesomeIcon icon="edit" />
                     </button>
-                    
+
                     <button
                       className="action-btn delete-btn"
                       onClick={() => handleDeleteNote(note.id)}
@@ -299,6 +321,15 @@ export const ApplicationNotes = ({ applicationId }) => {
                       <FontAwesomeIcon icon="trash" />
                     </button>
                   </>
+                )}
+                {user.role === 'client' && note.author?.id === user.id && (
+                  <button
+                    className="action-btn delete-btn"
+                    onClick={() => handleDeleteNote(note.id)}
+                    title="Удалить"
+                  >
+                    <FontAwesomeIcon icon="trash" />
+                  </button>
                 )}
               </div>
             </div>

@@ -88,6 +88,29 @@ export const AdminPanel = () => {
     }
   };
 
+  const handleAssignManager = async (applicationId, managerId) => {
+    try {
+      const response = await adminAPI.assignManager(applicationId, managerId);
+
+      if (response.success) {
+        // Обновляем заявку в локальном состоянии
+        setApplications(prevApps =>
+          prevApps.map(app =>
+            app.id === applicationId
+              ? { ...app, assigned_to: managerId, assigned_manager_name: users.find(u => u.id === managerId)?.full_name }
+              : app
+          )
+        );
+        showToast('Менеджер успешно назначен', 'success');
+      } else {
+        showToast(response.message || 'Ошибка назначения менеджера', 'error');
+      }
+    } catch (error) {
+      console.error('Assign manager error:', error);
+      showToast(error.response?.data?.message || 'Ошибка назначения менеджера', 'error');
+    }
+  };
+
   const handleViewApplication = (applicationId) => {
     setSelectedApplicationId(applicationId);
     setIsModalOpen(true);
@@ -180,6 +203,7 @@ export const AdminPanel = () => {
   const tabs = [
     { id: 'dashboard', label: 'Дашборд', icon: 'chart-bar', allowed: isManager },
     { id: 'applications', label: 'Заявки', icon: 'folder', allowed: isManager },
+    { id: 'assignments', label: 'Назначения', icon: 'user-tie', allowed: isAdmin },
     { id: 'statistics', label: 'Статистика', icon: 'chart-line', allowed: isAdmin },
     { id: 'users', label: 'Пользователи', icon: 'users', allowed: isAdmin },
     { id: 'reports', label: 'Отчеты', icon: 'file-alt', allowed: isAdmin },
@@ -340,31 +364,14 @@ export const AdminPanel = () => {
                           </td>
                           <td>{app.serviceTypeDisplay}</td>
                           <td>{new Date(app.created_at).toLocaleDateString()}</td>
-                          <td>{app.contact_full_name}</td>
+                          <td>{app.full_name}</td>
                           <td>
                             <button
                               className="action-btn view-btn"
                               onClick={() => handleViewApplication(app.id)}
                               title="Просмотреть детали заявки"
-                            >
-                              <FontAwesomeIcon icon="eye" />
+                            > Детали
                             </button>
-                            <select
-                              value={app.status}
-                              onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                              className="status-select"
-                            >
-                              <option value="draft">Черновик</option>
-                              <option value="submitted">Отправлено</option>
-                              <option value="in_review">На рассмотрении</option>
-                              <option value="needs_info">Требуется информация</option>
-                              <option value="estimated">Оценено</option>
-                              <option value="approved">Утверждено</option>
-                              <option value="in_progress">В работе</option>
-                              <option value="completed">Завершено</option>
-                              <option value="cancelled">Отменено</option>
-                              <option value="rejected">Отклонено</option>
-                            </select>
                           </td>
                         </tr>
                       ))}
@@ -434,6 +441,58 @@ export const AdminPanel = () => {
               <div className="reports-content">
                 <h2>Отчеты</h2>
                 <p>Функционал отчетов в разработке</p>
+              </div>
+            )}
+
+            {activeTab === 'assignments' && (
+              <div className="assignments-content">
+                <h2>Назначение менеджеров</h2>
+                <p>Назначьте менеджеров на заявки</p>
+                <div className="table-responsive">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Статус</th>
+                        <th>Клиент</th>
+                        <th>Назначенный менеджер</th>
+                        <th>Действие</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {applications.map(app => (
+                        <tr key={app.id}>
+                          <td>{app.id}</td>
+                          <td>{app.title}</td>
+                          <td>
+                            <span className={`status-badge status-${app.status}`}>
+                              {app.statusDisplay}
+                            </span>
+                          </td>
+                          <td>{app.contact_full_name}</td>
+                          <td>
+                            {app.assigned_manager_name || 'Не назначен'}
+                          </td>
+                          <td>
+                            <select
+                              value={app.assigned_to || ''}
+                              onChange={(e) => handleAssignManager(app.id, e.target.value)}
+                              className="manager-select"
+                            >
+                              <option value="">Выберите менеджера</option>
+                              {users.filter(user => user.role === 'manager').map(manager => (
+                                <option key={manager.id} value={manager.id}>
+                                  {manager.full_name}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 

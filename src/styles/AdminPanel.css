@@ -252,6 +252,22 @@
   border-color: var(--accent);
 }
 
+.manager-select {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-light);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  min-width: 200px;
+}
+
+.manager-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+}
+
 .applications-header {
   display: flex;
   justify-content: space-between;

@@ -79,7 +79,6 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
     if (!formData.title.trim()) newErrors.title = 'Название обязательно';
     if (formData.title.length < 5) newErrors.title = 'Название должно быть не менее 5 символов';
     if (!formData.service_type) newErrors.service_type = 'Тип услуги обязателен';
-    if (!formData.contact_full_name.trim()) newErrors.contact_full_name = 'Контактное лицо обязательно';
     if (!formData.contact_email.trim()) newErrors.contact_email = 'Email обязателен';
     if (!formData.contact_phone.trim()) newErrors.contact_phone = 'Телефон обязателен';
 
@@ -188,20 +187,6 @@ export const ApplicationForm = ({ onSuccess, onCancel }) => {
                 placeholder="Введите сумму бюджета"
               />
             </div>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="contact_full_name">Контактное лицо *</label>
-            <input
-              type="text"
-              id="contact_full_name"
-              name="contact_full_name"
-              value={formData.contact_full_name}
-              onChange={handleChange}
-              className={errors.contact_full_name ? 'error' : ''}
-              placeholder="Ваше имя и фамилия"
-            />
-            {errors.contact_full_name && <span className="error-text">{errors.contact_full_name}</span>}
           </div>
           
           <div className="form-row">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import { adminAPI, applicationsAPI } from '../../api';
 import { ApplicationNotes } from './ApplicationNotes'; // Импортируем компонент заметок
@@ -7,9 +8,11 @@ import '../../styles/ApplicationDetailsModal.css';
 
 export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpdate }) => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [managers, setManagers] = useState([]);
 
   useEffect(() => {
     if (isOpen && applicationId) {
@@ -28,6 +31,14 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
       if (user && (user.role === 'admin' || user.role === 'manager')) {
         // Администраторы и менеджеры используют adminAPI
         response = await adminAPI.getApplicationDetails(applicationId);
+
+        // Загружаем список менеджеров для администраторов и менеджеров
+        if (user.role === 'admin' || user.role === 'manager') {
+          const usersResponse = await adminAPI.getUsers({ role: 'manager' });
+          if (usersResponse.success) {
+            setManagers(usersResponse.data.users || []);
+          }
+        }
       } else {
         // Обычные пользователи используют applicationsAPI
         response = await applicationsAPI.getById(applicationId);
@@ -46,6 +57,75 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
     }
   };
 
+  const handleStatusChange = async (newStatus) => {
+    if (!user || !(user.role === 'admin' || user.role === 'manager')) {
+      showToast('Недостаточно прав для изменения статуса', 'error');
+      return;
+    }
+
+    try {
+      const response = await adminAPI.updateApplicationStatus(applicationId, { status: newStatus });
+
+      if (response.success) {
+        // Обновляем статус в локальном состоянии
+        setApplication(prevApp => ({
+          ...prevApp,
+          status: newStatus,
+          statusDisplay: getStatusDisplay(newStatus)
+        }));
+        showToast('Статус заявки успешно изменен', 'success');
+      } else {
+        showToast(response.message || 'Ошибка изменения статуса', 'error');
+      }
+    } catch (error) {
+      console.error('Update status error:', error);
+      showToast(error.response?.data?.message || 'Ошибка изменения статуса', 'error');
+    }
+  };
+
+  const getStatusDisplay = (status) => {
+    const statusMap = {
+      'draft': 'Черновик',
+      'submitted': 'Отправлено',
+      'in_review': 'На рассмотрении',
+      'needs_info': 'Требуется информация',
+      'estimated': 'Оценено',
+      'approved': 'Утверждено',
+      'in_progress': 'В работе',
+      'completed': 'Завершено',
+      'cancelled': 'Отменено',
+      'rejected': 'Отклонено'
+    };
+
+    return statusMap[status] || status;
+  };
+
+  const handleAssignManager = async (managerId) => {
+    if (!user || !(user.role === 'admin' || user.role === 'manager')) {
+      showToast('Недостаточно прав для назначения менеджера', 'error');
+      return;
+    }
+
+    try {
+      const response = await adminAPI.assignManager(applicationId, managerId);
+
+      if (response.success) {
+        // Обновляем данные в локальном состоянии
+        setApplication(prevApp => ({
+          ...prevApp,
+          assigned_to: managerId,
+          assigned_manager_name: response.data?.new_manager?.full_name || 'Назначенный менеджер'
+        }));
+        showToast('Менеджер успешно назначен', 'success');
+      } else {
+        showToast(response.message || 'Ошибка назначения менеджера', 'error');
+      }
+    } catch (error) {
+      console.error('Assign manager error:', error);
+      showToast(error.response?.data?.message || 'Ошибка назначения менеджера', 'error');
+    }
+  };
+
   const handleUpdate = () => {
     if (onUpdate) {
       onUpdate();
@@ -59,7 +139,7 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content application-details-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3>Детали заявки #{applicationId}</h3>
+          <h3>{user.role === 'client' ? 'Детали заявки' : `Детали заявки #${applicationId}`}</h3>
           <button className="modal-close-btn" onClick={onClose}>
             <FontAwesomeIcon icon="times" />
           </button>
@@ -91,9 +171,30 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
 
               <div className="detail-item">
                 <label>Статус:</label>
-                <span className={`status-badge status-${application.status}`}>
-                  {application.statusDisplay}
-                </span>
+                <div className="status-control">
+                  {user && (user.role === 'admin' || user.role === 'manager') ? (
+                    <select
+                      value={application.status}
+                      onChange={(e) => handleStatusChange(e.target.value)}
+                      className="status-select"
+                    >
+                      <option value="draft">Черновик</option>
+                      <option value="submitted">Отправлено</option>
+                      <option value="in_review">На рассмотрении</option>
+                      <option value="needs_info">Требуется информация</option>
+                      <option value="estimated">Оценено</option>
+                      <option value="approved">Утверждено</option>
+                      <option value="in_progress">В работе</option>
+                      <option value="completed">Завершено</option>
+                      <option value="cancelled">Отменено</option>
+                      <option value="rejected">Отклонено</option>
+                    </select>
+                  ) : (
+                    <span className={`status-badge status-${application.status}`}>
+                      {application.statusDisplay}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="detail-item">
@@ -101,17 +202,14 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                 <span>{application.serviceTypeDisplay || application.service_type}</span>
               </div>
 
-              <div className="detail-item">
-                <label>Приоритет:</label>
-                <span className={`priority-badge priority-${application.priority}`}>
-                  {application.priorityDisplay}
-                </span>
-              </div>
-
-              <div className="detail-item">
-                <label>Клиент:</label>
-                <span>{application.contact_full_name}</span>
-              </div>
+              {!(user && user.role === 'client') && (
+                <div className="detail-item">
+                  <label>Приоритет:</label>
+                  <span className={`priority-badge priority-${application.priority}`}>
+                    {application.priorityDisplay}
+                  </span>
+                </div>
+              )}
 
               <div className="detail-item">
                 <label>Email клиента:</label>
@@ -123,10 +221,29 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                 <span>{application.contact_phone}</span>
               </div>
 
-              <div className="detail-item">
-                <label>Назначенный менеджер:</label>
-                <span>{application.assigned_manager_name || 'Не назначен'}</span>
-              </div>
+              {!(user && user.role === 'client') && (
+                <div className="detail-item">
+                  <label>Назначенный менеджер:</label>
+                  <div className="manager-control">
+                    {user && (user.role === 'admin' || user.role === 'manager') ? (
+                      <select
+                        value={application.assigned_to || ''}
+                        onChange={(e) => handleAssignManager(e.target.value)}
+                        className="manager-select"
+                      >
+                        <option value="">Выберите менеджера</option>
+                        {managers.map(manager => (
+                          <option key={manager.id} value={manager.id}>
+                            {manager.full_name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span>{application.assigned_manager_name || 'Не назначен'}</span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="detail-item">
                 <label>Ожидаемый бюджет:</label>
@@ -138,10 +255,12 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                 <span>{new Date(application.created_at).toLocaleString()}</span>
               </div>
 
-              <div className="detail-item">
-                <label>Дата обновления:</label>
-                <span>{new Date(application.updated_at).toLocaleString()}</span>
-              </div>
+              {!(user && user.role === 'client') && (
+                <div className="detail-item">
+                  <label>Дата обновления:</label>
+                  <span>{new Date(application.updated_at).toLocaleString()}</span>
+                </div>
+              )}
 
               <div className="detail-item full-width">
                 <label>Файлы:</label>
@@ -163,37 +282,39 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
                 </div>
               </div>
 
-              <div className="detail-item full-width">
-                <label>История статусов:</label>
-                <div className="status-history">
-                  {application.status_history && application.status_history.length > 0 ? (
-                    <ul>
-                      {application.status_history.map(history => (
-                        <li key={history.id} className="status-change">
-                          <div className="status-change-info">
-                            <span className={`status-badge status-${history.new_status}`}>
-                              {history.new_status_display}
-                            </span>
-                            <span className="status-change-date">
-                              {new Date(history.created_at).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="status-change-by">
-                            {history.changed_by ? `Изменено: ${history.changed_by}` : 'Автоматически'}
-                          </div>
-                          {history.comment && (
-                            <div className="status-change-comment">
-                              Комментарий: {history.comment}
+              {!(user && user.role === 'client') && (
+                <div className="detail-item full-width">
+                  <label>История статусов:</label>
+                  <div className="status-history">
+                    {application.status_history && application.status_history.length > 0 ? (
+                      <ul>
+                        {application.status_history.map(history => (
+                          <li key={history.id} className="status-change">
+                            <div className="status-change-info">
+                              <span className={`status-badge status-${history.new_status}`}>
+                                {history.new_status_display}
+                              </span>
+                              <span className="status-change-date">
+                                {new Date(history.created_at).toLocaleString()}
+                              </span>
                             </div>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <span>История статусов отсутствует</span>
-                  )}
+                            <div className="status-change-by">
+                              {history.changed_by ? `Изменено: ${history.changed_by}` : 'Автоматически'}
+                            </div>
+                            {history.comment && (
+                              <div className="status-change-comment">
+                                Комментарий: {history.comment}
+                              </div>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span>История статусов отсутствует</span>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Компонент заметок */}
