@@ -93,7 +93,7 @@ export const ApplicationsList = () => {
 
                   <div className="detail-item">
                     <span className="label">Контактное лицо:</span>
-                    <span className="value">{application.contact_full_name}</span>
+                    <span className="value">{application.full_name}</span>
                   </div>
 
                   <div className="detail-item">

@@ -1,8 +1,5 @@
 import { useToast } from '../context/ToastContext';
 
-/**
- * Specific error messages for different authentication errors
- */
 export const AUTH_ERROR_MESSAGES = {
   // Login errors
   'Invalid credentials': 'Ошибка аутентификации: неверный email или пароль',

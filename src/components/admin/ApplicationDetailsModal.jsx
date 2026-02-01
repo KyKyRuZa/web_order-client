@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '../utils/FontAwesomeIcon';
 import { adminAPI, applicationsAPI } from '../../api';
 import { ApplicationNotes } from './ApplicationNotes'; // Импортируем компонент заметок
 import '../../styles/ApplicationDetailsModal.css';
 
 export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpdate }) => {
+  const { user } = useAuth();
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,25 +15,22 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
     if (isOpen && applicationId) {
       loadApplicationDetails();
     }
-  }, [isOpen, applicationId]);
+  }, [isOpen, applicationId, user]);
 
   const loadApplicationDetails = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Попробуем сначала получить данные через adminAPI, затем через applicationsAPI
       let response;
-      try {
+
+      // Определяем, какой API использовать в зависимости от роли пользователя
+      if (user && (user.role === 'admin' || user.role === 'manager')) {
+        // Администраторы и менеджеры используют adminAPI
         response = await adminAPI.getApplicationDetails(applicationId);
-      } catch (adminError) {
-        // Если ошибка с adminAPI, пробуем через applicationsAPI
-        try {
-          response = await applicationsAPI.getById(applicationId);
-        } catch (userError) {
-          // Если оба варианта не сработали, выбрасываем ошибку
-          throw new Error('Не удалось загрузить детали заявки');
-        }
+      } else {
+        // Обычные пользователи используют applicationsAPI
+        response = await applicationsAPI.getById(applicationId);
       }
 
       if (response.success) {
@@ -41,7 +40,7 @@ export const ApplicationDetailsModal = ({ applicationId, isOpen, onClose, onUpda
       }
     } catch (err) {
       console.error('Load application details error:', err);
-      setError('Ошибка загрузки заявки');
+      setError('Не удалось загрузить детали заявки');
     } finally {
       setLoading(false);
     }

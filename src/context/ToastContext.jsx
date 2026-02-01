@@ -11,15 +11,21 @@ export const useToast = () => {
   return context;
 };
 
+// Helper function to generate unique IDs
+let toastCounter = 0;
+const generateUniqueId = () => {
+  return `toast-${++toastCounter}-${Date.now()}`;
+};
+
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
   const showToast = (message, type = 'info') => {
-    const id = Date.now();
+    const id = generateUniqueId();
     const newToast = { id, message, type };
-    
+
     setToasts((prevToasts) => [...prevToasts, newToast]);
-    
+
     // Автоматически удаляем тост через 5 секунд
     setTimeout(() => {
       removeToast(id);

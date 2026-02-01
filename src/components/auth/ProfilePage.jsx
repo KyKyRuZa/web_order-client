@@ -66,16 +66,27 @@ export const ProfilePage = () => {
     e.preventDefault();
 
     try {
+      // Очищаем номер телефона от лишних символов, оставляем только цифры
+      let cleanPhone = formData.phone ? formData.phone.replace(/\D/g, '') : '';
+
+      // Если номер начинается с 7, добавляем + в начало для международного формата
+      if (cleanPhone && cleanPhone[0] === '7') {
+        cleanPhone = '+' + cleanPhone;
+      } else if (cleanPhone && cleanPhone[0] !== '+') {
+        // Если номер не начинается с + и не с 7, добавляем +
+        cleanPhone = '+' + cleanPhone;
+      }
+
       const profileData = {
-        ...formData,
-        phone: formData.phone
+        full_name: formData.fullName,
+        phone: cleanPhone,
+        company_name: formData.companyName
       };
 
       const result = await updateProfile(profileData, showToast);
 
       if (result.success) {
-        showToast('Профиль успешно обновлен!', 'success');
-        setIsEditing(false);
+-        setIsEditing(false);
       } else {
         showToast(result.message, 'error');
       }
